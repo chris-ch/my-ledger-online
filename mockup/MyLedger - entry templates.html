@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<link href="myledger.css" type="text/css" rel="stylesheet" />
+	<title>MyLedger</title>
+</head>
+<body>
+<div id="header-section">
+<div id="header-section-logo">
+<h1><a href="/">
+<span id="_M_yLedger">M</span><span id="M_y_Ledger">y</span><span id="My_L_edger">L</span><span id="MyL_e_dger">e</span><span id="MyLe_d_ger">d</span><span id="MyLed_g_er">g</span><span id="MyLedg_e_r">e</span><span id="MyLedge_r_">r</span>
+</a></h1>
+</div>
+<p id="header-section-userid">
+You are logged in as test@example.com
+<a href="/google_logout"><img src="settings.png"/></a>
+</p>
+</div>
+<div class="select-workspace">
+<form>
+Working on book
+<select >
+<option>Optimacom</option>
+<option>Create new...</option>
+</select>
+Accounting Period
+<select>
+<option>2013</option>
+<option>Create new...</option>
+</select>
+<input type="Button" value="Select"></input>
+</form>
+</div>
+<ul id="tabset">
+   <li>
+       <a href="#">Journal Entry</a>
+   </li>
+   <li>
+       <a href="#">Company Profile</a>
+   </li>
+   <li>
+       <a href="#">Manage Accounts</a>
+   </li>
+   <li class="current-tab">
+       <a href="#">Manage Entries</a>
+   </li>
+</ul>
+<div id="tab-content">
+	<ul id="tab-menu">
+	   <li>
+	       <a href="#">Displaying Entries</a>
+	   </li>
+	   <li>
+	       <a href="#">Recurring Payments</a>
+	   </li>
+	   <li class="current-tab-menu-item">
+	       <a href="#">Entry Template</a>
+	   </li>
+	   <li>
+	       <a href="#">Importing Entries</a>
+	   </li>
+	   <li>
+	       <a href="#">Exporting Entries</a>
+	   </li>
+	</ul>
+	<div id="tab-page">
+		<form>
+		<div class="select-workspace">
+		Available templates
+		<select >
+		<option>Rental Income</option>
+		<option>Telecom Bill</option>
+		<option>Create New...</option>
+		</select>
+		Operating Currency
+		<select >
+		<option>CHF</option>
+		</select>
+		</div>
+		<table>
+		<thead>
+		<tr>
+		<th>Debit</th>
+		<th>Credit</th>
+		<th>Label</th>
+		</tr>
+		</thead>
+		<tr>
+		<td>
+		<select >
+		<option>Asset</option>
+		</select>
+		<select >
+		<option>Cash</option>
+		</select>
+		</td>
+		<td>
+		<select >
+		<option>Asset</option>
+		</select>
+		<select >
+		<option>Account Receivable</option>
+		</select>
+		</td>
+		<td><input type="text" value="Cash from renting appartment"></input></td>
+		</tr><tr>
+		<td>
+		<select >
+		<option>Asset</option>
+		</select>
+		<select >
+		<option>Account Receivable</option>
+		</select>
+		</td>
+		<td>
+		<select >
+		<option>Income</option>
+		</select>
+		<select >
+		<option>Rental</option>
+		</select>
+		</td>
+		<td><input type="text" value="Booking income from renting appartment"></input></td>
+		</tr>
+		<tr>
+		<td>
+		<select >
+		<option>Asset</option>
+		</select>
+		<select >
+		<option>------</option>
+		</select>
+		</td>
+		<td>
+		<select >
+		<option>Asset</option>
+		</select>
+		<select >
+		<option>------</option>
+		</select>
+		</td>
+		<td><input type="text" value=""></input></td>
+		</tr>
+		<tr>
+		<td>
+		<select >
+		<option>Asset</option>
+		</select>
+		<select >
+		<option>------</option>
+		</select>
+		</td>
+		<td>
+		<select >
+		<option>Asset</option>
+		</select>
+		<select >
+		<option>------</option>
+		</select>
+		</td>
+		<td><input type="text" value=""></input></td>
+		</tr>
+		</table>
+		<input type="Button" value="Save"></input>
+		</form>
+		</div>
+	</div>
+<div id="copyright">
+<p>Copyright (c) 2014 Optimacom s&agrave;rl - All rights reserved.</p></div>
+</body>
+</html>

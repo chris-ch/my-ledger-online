@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="myledger">
+{% load oasextras %}
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}MyLedger{% endblock %}</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="google-site-verification" content="Uaz25R6OxZpFsgCLizq_oyP__05yZoJ69u_glr7iivg" />
+    
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="/bootstrap-css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <!--link rel="stylesheet" href="/bootstrap-css/bootstrap-theme.min.css"-->
+    
+    <link rel="stylesheet" href="/stylesheets/ng-grid.css">
+    
+    <link href="/stylesheets/myledger.css" type="text/css" rel="stylesheet"/>
+    
+</head>
+<body>
+<div class="container">
+    <div class="row clearfix" id="header-section">
+        <div class="col-sm-6 column" id="header-section-logo">
+            <a href="{% url 'oas.views.index' %}">
+            <span id="_M_yLedger">M</span><span id="M_y_Ledger">y</span><span id="My_L_edger">L</span><span id="MyL_e_dger">e</span><span id="MyLe_d_ger">d</span><span id="MyLed_g_er">g</span><span id="MyLedg_e_r">e</span><span id="MyLedge_r_">r</span>
+            </a>
+        </div>
+        <div class="col-sm-6 column" id="header-section-login">
+            You are logged in as <a href="{% url 'oas.views.googleauth.google_logout' %}">
+            <span class="glyphicon glyphicon-cog"> {{ request.user.username }}</span></a>
+        </div>
+    </div>
+      
+    <div class="row clearfix">
+		<div class="col-md-12 column">
+		    <ul class="nav nav-tabs">
+				<li class="disabled"><a href="#">Working on book:</a></li>
+				<li class="select pull-left">
+					 <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{ current_legal_entity.name }}<strong class="caret"></strong></a>
+					 <ul class="dropdown-menu"> 
+					     {% for legal_entity in available_legal_entities %}
+					     <li><a href="{% url 'oas.views.display_legal_entity' legal_entity.code %}">{{ legal_entity.name }}</a></li>
+					     {% endfor %}
+					</ul>
+				</li>
+				<li><a data-toggle="modal" href="#createLegalEntity"><span class="glyphicon glyphicon-plus"> New book...</span></a></li>
+				<li class="pull-right"><a data-toggle="modal" href="#deleteLegalEntity"><span class="glyphicon glyphicon-trash"> Delete book...</span></a></li>
+			</ul>
+		</div>
+    </div>
+    <nav class="navbar navbar-default" role="navigation">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{% url 'oas.views.display_legal_entity' current_legal_entity.code %}">{{ current_legal_entity.code }}</a>
+      </div>
+    
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+           <li {% block tab-journal-entry %}{% endblock %}>
+           <a href="{% url 'oas.views.journal_entry' current_legal_entity.code %}">Journal Entry</a>
+           </li>
+          <li {% block tab-accounts %}{% endblock %}>
+          <a href="{% url 'oas.views.manage_accounts' current_legal_entity.code %}">Accounts</a>
+          </li>
+          <li {% block tab-journal %}{% endblock %}>
+          <a href="{% url 'oas.views.display_journal' current_legal_entity.code %}">Journal</a>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </nav>
+    
+        {% block content %}
+        {% endblock %}
+
+    <div id="footer">
+    Copyright (c) 2014 Christophe Alexandre - All rights reserved.
+    </div>
+
+    <!-- Legal entity creation -->
+    <div class="modal fade"  id="createLegalEntity">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Creating a new book</h4>
+          </div>
+          <div class="modal-body">
+             <form novalidate class="form-horizontal" 
+             action="{% url 'oas.views.create_legal_entity' %}"
+             method="post">
+                <div>{% csrf_token %}</div>
+               <div class="control-group">
+                    {{ short_legal_entity_form.legal_entity_code|label_with_css:"control-label" }}
+                    {{ short_legal_entity_form.legal_entity_code|with_css:"form-control" }}
+               </div>
+               <div class="control-group">
+                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                   <button class="btn btn-primary" type="Submit">Create</button>
+               </div>
+             </form>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    
+    <!-- Legal entity deletion -->
+    <div class="modal fade"  id="deleteLegalEntity">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">
+            <span class="glyphicon glyphicon-warning-sign"> Deleting book {{ current_legal_entity.name }}</span>
+            </h4>
+          </div>
+          <div class="modal-body">
+             <p class="text-center">The book will be removed permanently and related data will be lost.</p>
+             <p class="text-center">Do you really want to proceed?</p>
+             <form novalidate class="form-horizontal" 
+             action="{% url 'oas.views.delete_legal_entity' current_legal_entity.code %}"
+             method="post">
+               <div>{% csrf_token %}</div>
+               <div class="control-group text-center">
+                   <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                   <button class="btn btn-primary" type="Submit">Yes</button>
+               </div>
+             </form>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    
+</div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="/js/external/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/js/external/jquery-ui/ui/jquery-ui.js" type="text/javascript"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="/bootstrap-js/bootstrap.min.js"></script>
+
+    <!-- Various External JavaScript libraries -->
+    <script src="/js/external/underscore/underscore-min.js" type="text/javascript"></script>
+    <script src="/js/external/angular/angular.min.js" type="text/javascript"></script>
+    <script src="/js/external/angular-resource/angular-resource.min.js" type="text/javascript"></script>
+    <script src="/js/external/angular-ui-utils/ui-utils.min.js" type="text/javascript"></script>
+    <script src="/js/external/angular-bootstrap/ui-bootstrap-tpls.min.js" type="text/javascript"></script>
+    <script src="/js/external/angular.treeview.js" type="text/javascript"></script>
+    <script src="/js/external/createDialog.js" type="text/javascript"></script>
+    <script src="/js/external/ng-grid.min.js" type="text/javascript"></script>
+
+    <script src="/js/myledger-app.js" type="text/javascript"></script>
+    <script src="/js/controllers.js" type="text/javascript"></script>
+    <script src="/js/services.js" type="text/javascript"></script>
+    <script src="/js/factories.js" type="text/javascript"></script>
+    <script src="/js/directives.js" type="text/javascript"></script>
+    <script src="/js/decorators.js" type="text/javascript"></script>
+    <script src="/js/transformers.js" type="text/javascript"></script>
+    <script type="text/javascript">//<![CDATA[ 
+        // variables set from django into angularjs
+        window.legalEntityCode = '{{current_legal_entity.code}}';
+        {% block angularjs_variables %}
+        {% endblock %}
+        //]]>
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,54 @@
+<div class="row">
+<div class="col-md-12 column">
+    <div class="form-group col-md-4">
+        <div class="control-group">
+             <label for="formAccountCode">Code</label>
+             <input type="text"
+                 id="formAccountCode"
+                 class="form-control input-sm"
+                 data-ng-model="account.id"
+                 ></input>
+        </div>
+    </div>
+    <div class="form-group col-md-8">
+        <div class="control-group">
+             <label for="formAccountName">Name</label>
+             <input type="text"
+                 id="formAccountName"
+                 class="form-control input-sm"
+                 data-ng-model="account.name"
+                 ></input>
+        </div>
+    </div>
+</div>
+</div>
+<div class="row">
+<div class="col-md-12 column">
+    <div class="form-group col-md-4">
+        <div class="control-group">
+             <label for="formAccountType">Type</label>
+            <select
+                id="formAccountType"
+                data-ng-model="account.typeCode"
+                data-ng-options="option.code as option.name for option in accountTypes"
+                class="form-control input-sm">
+            </select>
+        </div>
+    </div>
+</div>
+</div>
+<div class="row clearfix">
+<div class="col-md-12 column">
+    <div class="form-group col-md-12">
+        <div class="control-group">
+             <label for="formParentAccountCode">Select a parent account</label>
+             <select
+                 id="formParentAccountCode"
+                 data-ng-model="account.parentId"
+                 data-ng-options="code as code + ' - ' + name for (code, name) in flatAccounts[account.typeCode]"
+                 class="form-control input-sm">
+             </select>
+        </div>
+    </div>
+</div>
+</div>

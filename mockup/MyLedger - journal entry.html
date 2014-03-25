@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<link href="sample-bookkeeping.css" type="text/css" rel="stylesheet" />
+	<title>MyBookkeeper - Journal Entry</title>
+</head>
+<body>
+<h1><a href="/">MyBookkeeper</a></h1>
+<p>
+You are logged in as test@example.com <a href="/google_logout">(logout)</a>
+</p>
+<form>
+Working on book
+<select >
+<option>Optimacom</option>
+<option>Create new...</option>
+</select>
+Accounting Period
+<select>
+<option>2013</option>
+<option>Create new...</option>
+</select>
+<input type="Button" value="Select"></input>
+</form>
+<ul id="tabset">
+   <li>
+       <a href="#" id="current-tab">Journal Entry</a>
+   </li>
+   <li>
+       <a href="#">Company Profile</a>
+   </li>
+   <li>
+       <a href="#">Manage Accounts</a>
+   </li>
+   <li>
+       <a href="#">Manage Entries</a>
+   </li>
+</ul>
+<div id="tab-content">
+	<form>
+	Operation Type
+	<select >
+	<option>Debt Issuance</option>
+	<option>--------</option>
+	<option>Rental Income</option>
+	</select>
+	Value Date
+	<input type="text" value="2013/08/23"></input>
+	Operating Currency
+	<select >
+	<option>CHF</option>
+	</select>
+	<table>
+	<thead>
+	<tr>
+	<th>Debit</th>
+	<th>Credit</th>
+	<th>Amount</th>
+	<th>Label</th>
+	</tr>
+	</thead>
+	<tr>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>Cash</option>
+	</select>
+	</td>
+	<td>
+	<select >
+	<option>Liability / Equity</option>
+	</select>
+	<select >
+	<option>LT Debt</option>
+	</select>
+	</td>
+	<td><input type="text" value="500000"></input></td>
+	<td><input type="text" value="Raising cash from credit line"></input></td>
+	</tr>
+	<tr>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>Cash Account 1</option>
+	</select>
+	</td>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>Cash</option>
+	</select>
+	</td>
+	<td><input type="text" value="400000"></input></td>
+	<td><input type="text" value="Splitting 1"></input></td>
+	</tr>
+	<tr>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>Cash Account 2</option>
+	</select>
+	</td>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>Cash</option>
+	</select>
+	</td>
+	<td><input type="text" value="100000"></input></td>
+	<td><input type="text" value="Splitting 2"></input></td>
+	</tr>
+	<tr>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>------</option>
+	</select>
+	</td>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>------</option>
+	</select>
+	</td>
+	<td><input type="text" value=""></input></td>
+	<td><input type="text" value=""></input></td>
+	</tr>
+	<tr>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>------</option>
+	</select>
+	</td>
+	<td>
+	<select >
+	<option>Asset</option>
+	</select>
+	<select >
+	<option>------</option>
+	</select>
+	</td>
+	<td><input type="text" value=""></input></td>
+	<td><input type="text" value=""></input></td>
+	</tr>
+	</table>
+	<input type="Button" value="Save"></input>
+	<input type="Button" value="Save as template..."></input>
+	</form>
+</div>
+<p>Copyright (c) 2014 Optimacom s&agrave;rl - All rights reserved.</p>
+</body>
+</html>

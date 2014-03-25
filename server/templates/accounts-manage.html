@@ -1,0 +1,60 @@
+{% extends "accounts.html" %}
+
+{% block tab-account-manage %}class="active"{% endblock %}
+
+{% block account-content %}
+{%verbatim%}
+<div data-ng-controller="ManageAccountController">
+<alert data-ng-repeat="message in messages"
+    type="message.type"
+    close="closeMessage($index)">{{message.content}}
+</alert>
+<div class="row clearfix">
+    <div class="col-sm-12 column">
+        <button
+            type="button"
+            class="btn btn-primary btn-xs"
+            data-ng-click="launchAccountCreationModal(treeSet)"
+            >
+        <span class="glyphicon glyphicon-plus"></span> New account...
+        </button> 
+    </div>
+</div>
+
+<div class="panel-group" id="accordion">
+  <div class="panel panel-default" 
+    data-ng-repeat="accountType in accountTypes"
+    style="overflow: visible !important;"
+    >
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{accountType.code}}">
+          {{accountType.name}}
+        </a>
+      </h4>
+    </div>
+    <div id="collapse{{accountType.code}}" class="panel-collapse collapse">
+      <div class="panel-body">
+        <alert data-ng-repeat="message in treeviewAccounts[accountType.code].messages"
+            type="message.type"
+            close="closeTreeMessage(treeviewAccounts[accountType.code], $index)">{{message.content}}
+        </alert>
+        <div
+          data-angular-treeview="true"
+          data-tree-id="treeviewAccounts_{{accountType.code}}"
+          data-tree-model="treeviewAccounts['{{accountType.code}}']"
+          data-node-id="id"
+          data-node-label="label"
+          data-node-badge="badge"
+          data-node-children="children"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+{%endverbatim%}
+{% endblock %}

@@ -1,0 +1,12 @@
+Account,Label,Parent,
+3,Revenus,,
+3090,Escomptes,3,Revenus
+3400,Ventes brutes de prestations de services,3,Revenus
+3400.1,Loyer Studio 6 Montreux,3400,Revenus
+3400.2,Loyer Studio 8 Montreux,3400,Revenus
+3400.3,Loyer Appartement Vaudrès Clarens,3400,Revenus
+3400.4,Loyer Appartement Riviera Chailly sur Clarens,3400,Revenus
+3400.5,Loyer studio Vinet Clarens,3400,Revenus
+3400.6,Loyer Studio 7 Montreux,3400,Revenus
+3400.7,Location place de parc Chailly,3400,Revenus
+3410,Frais facturés,3,Revenus

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block tab-journal %}class="active"{% endblock %}
+
+{% block content %}
+
+    <div ng-controller="JournalController">
+        <div class="gridStyle" ng-grid="gridOptions">
+        </div>
+    </div>
+
+{% endblock %}

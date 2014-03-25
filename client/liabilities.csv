@@ -1,0 +1,32 @@
+Account,Label,Parent,
+2,Passifs,,
+20,Dettes à court terme,2,Passifs
+24,Dettes à long terme,2,Passifs
+27,Dettes hors exploitation,2,Passifs
+28,Capitaux propres,2,Passifs
+2000,Dettes envers les associés,20,Dettes à court terme
+2000.1,Note de frais Gregory Kreiss,2000,Dettes envers les associés
+2000.2,Note de frais Christophe Alexandre,2000,Dettes envers les associés
+2100,Dettes bancaires à court terme,20,Dettes à court terme
+2400,Dettes bancaires à long terme,24,Dettes à long terme
+2400.2,Prêt hypothécaire 5114.48.13 (3.75%) 01.03.2006,2400,Dettes bancaires à long terme
+2400.3,Prêt hypothécaire 5114.48.14 (4%) 01.03.2006,2400,Dettes bancaires à long terme
+2400.4,Prêt hypothécaire 5120.49.03 (3.75%) 31.03.2006,2400,Dettes bancaires à long terme
+2400.5,Prêt hypothécaire 5121.43.03 (4.25%) 30.06.2006,2400,Dettes bancaires à long terme
+2410,Prêts des associés,24,Dettes à long terme
+2410.1,Prêts Gregory Kreiss,2410,Prêts des associés
+2410.2,Prêts Christophe Alexandre,2410,Prêts des associés
+2420,Garanties de loyer,24,Dettes à long terme
+2420.1,P Hochol,2420,Garanties de loyer
+2420.2,M. Rochette,2420,Garanties de loyer
+2420.4,Mme Zapata,2420,Garanties de loyer
+2420.5,Mme Cantatore,2420,Garanties de loyer
+2730,Passifs de régularisation,27,Dettes hors exploitation
+2800,Capital propre / Capital social,28,Capitaux propres
+2800.1,Apports Gregory Kreiss,2800,Capital propre / Capital social
+2800.2,Apports Christophe Alexandre,2800,Capital propre / Capital social
+2850,Prélèvements privés,28,Capitaux propres
+2900,Réserve générale,28,Capitaux propres
+2915,Réserves libres,28,Capitaux propres
+2990,Bénéfice reporté/Perte reportée,28,Capitaux propres
+2991,Bénéfice de l'exercice/Perte de l'exercice,28,Capitaux propres

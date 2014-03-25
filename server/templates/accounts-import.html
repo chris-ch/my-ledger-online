@@ -1,0 +1,41 @@
+{% extends "accounts.html" %}
+{% load oasextras %}
+
+{% block tab-account-import %}class="active"{% endblock %}
+
+{% block account-content %}
+
+<form 
+    class="form-inline"
+    enctype="multipart/form-data" 
+    method="post"
+    action="{% url 'oas.views.upload_accounts_file' current_legal_entity %}">
+    <div>{% csrf_token %}</div>
+    <div class="row">
+        <div class="control-group col-sm-6">
+             {{ import_account_form.file|label_with_css:"control-label" }}
+             {{ import_account_form.file|with_css:"form-control" }}
+        </div>
+        <div class="control-group col-sm-6">
+             {{ import_account_form.account_type|label_with_css:"control-label" }}
+             {{ import_account_form.account_type|with_css:"form-control" }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+        <div class="col-sm-12">
+         <label for="id_has_header">
+         Ignore first line (header)
+         </label>
+         <input id="id_has_header" name="has_header" type="checkbox" />
+        </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="control-group col-sm-12 pull-right">
+            <button class="btn btn-primary" type="Submit">Upload</button>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

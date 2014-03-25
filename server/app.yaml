@@ -1,0 +1,45 @@
+application: myledger  # http://myledger.appspot.com
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /favicon\.ico
+  static_files: static/images/folders.ico
+  upload: static/folders\.ico
+
+- url: /stylesheets
+  static_dir: static/stylesheets
+  
+- url: /images
+  static_dir: static/images
+  
+- url: /static
+  static_dir: static/html
+  
+- url: /partials
+  static_dir: static/partials
+  
+- url: /js
+  static_dir: static/js
+  
+- url: /bootstrap-js
+  static_dir: static/bootstrap/dist/js
+  
+- url: /bootstrap-css
+  static_dir: static/bootstrap/dist/css
+  
+- url: /fonts
+  static_dir: static/bootstrap/dist/fonts
+  
+- url: /.*
+  script: main.app
+
+libraries:
+- name: django
+  version: "1.5"
+
+builtins:
+- django_wsgi: on
+

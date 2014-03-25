@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block tab-journal-entry %}class="active"{% endblock %}
+
+{% block content %}
+  
+<div class="row clearfix">
+    <div class="col-sm-12 column">
+	<ul class="nav nav-tabs">
+	   <li {% block tab-journal-entry-new %}{% endblock %}>
+	       <a href="{% url 'oas.views.journal_entry' current_legal_entity.code %}">New Entries</a>
+	   </li>
+	   <li {% block tab-journal-entry-recurring %}{% endblock %}>
+	       <a href="{% url 'oas.views.journal_entry' current_legal_entity.code %}">Recurring Payments</a>
+	   </li>
+	   <li {% block tab-journal-entry-template %}{% endblock %}>
+	       <a href="{% url 'oas.views.journal_entry' current_legal_entity.code %}">Entry Templates</a>
+	   </li>
+	   <li {% block tab-journal-entry-import %}{% endblock %}>
+	       <a href="{% url 'oas.views.journal_entry' current_legal_entity.code %}">Importing Entries</a>
+	   </li>
+	   <li {% block tab-journal-entry-export %}{% endblock %}>
+	       <a href="{% url 'oas.views.journal_entry' current_legal_entity.code %}">Exporting Entries</a>
+	   </li>
+	</ul>
+    </div>
+</div>
+
+{% block journal-entry-content %}
+  
+{% endblock %}
+
+{% endblock %}
