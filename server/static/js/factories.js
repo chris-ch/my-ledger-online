@@ -35,6 +35,61 @@ angular.module('myledger.factories', [])
     function(){
                 
         return {
+            getEntries: function(){
+                var entries = [
+                    {
+                    date: new Date(2014, 2, 1),
+                    ref: 50,
+                    label: 'This is just an example',
+                    debit: '1000.1',
+                    credit: '3400.1',
+                    unitCost: '1250',
+                    quantity: '1',
+                    currency: 'CHF'
+                    },
+                    {
+                    date: new Date(2014, 2, 1),
+                    ref: 50,
+                    label: '',
+                    debit: '',
+                    credit: '',
+                    unitCost: '',
+                    quantity: '',
+                    currency: ''
+                    },
+                    {
+                    date: new Date(2014, 2, 1),
+                    ref: 50,
+                    label: '',
+                    debit: '',
+                    credit: '',
+                    unitCost: '',
+                    quantity: '',
+                    currency: ''
+                    },
+                    {
+                    date: new Date(2014, 2, 1),
+                    ref: 50,
+                    label: '',
+                    debit: '',
+                    credit: '',
+                    unitCost: '',
+                    quantity: '',
+                    currency: ''
+                    },
+                    {
+                    date: new Date(2014, 2, 1),
+                    ref: 50,
+                    label: '',
+                    debit: '',
+                    credit: '',
+                    unitCost: '',
+                    quantity: '',
+                    currency: ''
+                    },
+                ];
+                return entries;
+            }
         }
     }
 ])
