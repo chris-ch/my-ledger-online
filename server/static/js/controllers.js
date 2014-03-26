@@ -412,14 +412,16 @@ angular.module('myledger.controllers', [])
     $scope.gridOptions = { 
         data: 'entries',
         enableCellSelection: false,
-        enableRowSelection: false,
+        enableRowSelection: true,
         enableCellEditOnFocus: false,
+        enablePaging: true,
+		showFooter: true,
         plugins: [],
         columnDefs: [
             {
                 field: 'date',
                 displayName: 'Value Date',
-                enableCellEdit: true,
+                enableCellEdit: false,
                 cellFilter: 'date:\'yyyy/MM/dd\'',
                 width: '100px',
                 cellTemplate: dateTemplate,
@@ -427,19 +429,19 @@ angular.module('myledger.controllers', [])
             {
                 field: 'ref',
                 displayName: 'Ref',
-                enableCellEdit: true,
+                enableCellEdit: false,
                 width: '60px'
             },
             {
                 field: 'debit',
                 displayName: 'Debit',
-                enableCellEdit: true,
+                enableCellEdit: false,
                 width: '100px'
             },
             {
                 field: 'credit',
                 displayName: 'Credit',
-                enableCellEdit: true,
+                enableCellEdit: false,
                 width: '100px'
             },
             {
@@ -473,7 +475,7 @@ angular.module('myledger.controllers', [])
             {
                 field: 'label',
                 displayName: 'Description',
-                enableCellEdit: true
+                enableCellEdit: false
             },
         ]
     };
