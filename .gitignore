@@ -1,3 +1,4 @@
+/.datastore
 *.py[cod]
 
 # C extensions
