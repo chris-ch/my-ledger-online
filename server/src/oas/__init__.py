@@ -3,14 +3,14 @@ Helper functions.
 """
 import datetime
 import logging
-_LOG = logging.getLogger('oas')
 
 from django.contrib.auth.models import User
 from django.db.models import Count
 
-import models
-import tools
+from oas import models
+from oas import tools
 
+_LOG = logging.getLogger('oas')
 _LOG.debug('initializing locator')
 __locator = None
 

@@ -1,10 +1,10 @@
 import sys
 import logging
 import json
-from urllib import unquote
 import datetime
 
 from functools import wraps
+from urllib.parse import unquote
 
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
@@ -16,8 +16,6 @@ from django.db import transaction
 from django.db import models
 
 import oas.rpc
-
-import settings
 
 _LOG = logging.getLogger('oas.rpc.engine')
 
@@ -212,7 +210,7 @@ def jsonrpc(request):
                 
                 json_response['result'] = result
                 
-            except TypeError, te:
+            except TypeError:
                 error = {'code': -32602, 'message': 'Invalid params'}
                 json_response['error'] = error
                 import traceback
@@ -221,8 +219,8 @@ def jsonrpc(request):
                 _LOG.error('Invalid params %s: %s' % (func.func_name, ''.join(tb)))
                 return HttpResponseBadRequest(json.dumps(json_response), mimetype="application/json")
                 
-            except oas.rpc.LegalEntityCreationFailure, e:
-                error = {'code': -32000, 'message': 'Legal entity creation failed: %s' % e.message}
+            except oas.rpc.LegalEntityCreationFailure as error:
+                error = {'code': -32000, 'message': 'Legal entity creation failed: %s' % error.message}
                 json_response['error'] = error
                 return HttpResponseServerError(json.dumps(json_response), mimetype="application/json")
                 
