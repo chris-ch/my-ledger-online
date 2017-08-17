@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 import oas.rpc
 
@@ -6,17 +6,17 @@ import oas.rpc
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('oas.rpc.engine',
+urlurl = url('oas.rpc.engine',
                        (r'^jsonrpc/$', 'jsonrpc'),
                        (r'^jsonrpcsmd/$', 'jsonrpc_smd'),
                        )
 
-urlpatterns += patterns('oas.views.googleauth',
+urlurl += url('oas.views.googleauth',
                         (r'^google_login$', 'google_login'),
                         (r'^google_logout$', 'google_logout'),
                         )
 
-urlpatterns += patterns('oas.views',
+urlurl += url('oas.views',
                         (r'^$', 'index'),
                         (r'^testpage$', 'test_page'),
                         (r'^disp_entity/(?P<legal_entity_code>\w+)/$', 'display_legal_entity'),
