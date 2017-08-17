@@ -25,25 +25,26 @@ import logging
 from pprint import pprint
 from datetime import datetime
 
+
 class OASClientTest(unittest.TestCase):
-    
     def test_positional(self):
         from oasclient.jsonext import ServiceProxy
         rpc_srv = ServiceProxy('localhost', 'jsonrpc', port=8080, version='2.0')
         result = rpc_srv.subtract(42, 23)
         self.assertEquals(result, 19)
-      
+
     def test_named_1(self):
         from oasclient.jsonext import ServiceProxy
         rpc_srv = ServiceProxy('localhost', 'jsonrpc', port=8080, version='2.0')
         result = rpc_srv.subtract(subtrahend=23, minuend=42)
         self.assertEquals(result, 19)
-      
+
     def test_named_2(self):
         from oasclient.jsonext import ServiceProxy
         rpc_srv = ServiceProxy('localhost', 'jsonrpc', port=8080, version='2.0')
         result = rpc_srv.subtract(minuend=42, subtrahend=23)
         self.assertEquals(result, 19)
-      
+
+
 if __name__ == '__main__':
     unittest.main()

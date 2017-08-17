@@ -1,4 +1,4 @@
-myledger-online-bookkeeping
+my-ledger-online
 ===========================
 
 Online Bookkeeping

@@ -17,4 +17,3 @@ for handler in logging.getLogger().handlers:
 logging.getLogger('oas').setLevel('DEBUG')
 
 app = django.core.handlers.wsgi.WSGIHandler()
-

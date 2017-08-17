@@ -1,5 +1,6 @@
 import locale
 import logging
+
 _LOG = logging.getLogger('oas.views.google')
 
 from django.shortcuts import redirect
@@ -9,6 +10,7 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 
 from google.appengine.api import users
+
 
 def google_login(request):
     google_user = users.get_current_user()
@@ -27,9 +29,9 @@ def google_login(request):
         _LOG.debug('redirecting to page "%s"' % next_page)
         return redirect(next_page)
 
+
 def google_logout(request):
     google_logout_page = users.create_logout_url('/')
     logout(request)
     _LOG.debug('logging out google account')
     return redirect(google_logout_page)
-    
