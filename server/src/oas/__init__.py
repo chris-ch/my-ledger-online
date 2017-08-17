@@ -7,8 +7,7 @@ import logging
 from django.contrib.auth.models import User
 from django.db.models import Count
 
-from oas import models
-from server.oas import tools
+import oas
 
 _LOG = logging.getLogger('oas')
 _LOG.debug('initializing locator')
@@ -56,29 +55,29 @@ class _EntityLocator(object):
     def load_currencies(self, **kwds):
         """
         """
-        return models.Currency.objects.filter(**kwds).all()
+        return oas.models.Currency.objects.filter(**kwds).all()
 
     def load_account_types(self, **kwds):
         """
         """
-        return models.AccountType.objects.filter(**kwds).all()
+        return oas.models.AccountType.objects.filter(**kwds).all()
 
     def load_legal_entities(self, **kwds):
         """
         """
-        return models.LegalEntity.objects.filter(user=self.user, **kwds).all()
+        return oas.models.LegalEntity.objects.filter(user=self.user, **kwds).all()
 
     def load_legal_entity(self, **kwds):
         """
         """
-        entity = models.LegalEntity.objects.get(user=self.user, **kwds)
+        entity = oas.models.LegalEntity.objects.get(user=self.user, **kwds)
         return entity
 
     def load_accounts(self, legal_entity_code, **kwds):
         """
         """
-        entity = models.LegalEntity.objects.get(user=self.user, code=legal_entity_code)
-        accounts = (models.Account.objects
+        entity = oas.models.LegalEntity.objects.get(user=self.user, code=legal_entity_code)
+        accounts = (oas.models.Account.objects
                     .filter(user=self.user, legal_entity=entity, **kwds)
                     .annotate(count_entries=Count('entries'))
                     )
@@ -87,36 +86,36 @@ class _EntityLocator(object):
     def load_internal_investments(self, legal_entity_code):
         """
         """
-        return models.InternalInvestment.objects.filter(account_asset__legal_entity__code=legal_entity_code).all()
+        return oas.models.InternalInvestment.objects.filter(account_asset__legal_entity__code=legal_entity_code).all()
 
     def load_internal_investors(self, legal_entity_code):
         """
         """
-        return models.InternalInvestment.objects.filter(account_liability__legal_entity__code=legal_entity_code).all()
+        return oas.models.InternalInvestment.objects.filter(account_liability__legal_entity__code=legal_entity_code).all()
 
     def load_journal_entries(self, legal_entity_code, period_name, **kwds):
         """
         """
         period = self.load_accounting_period(legal_entity_code, period_name)
-        groups = models.JournalEntryGroup.objects.filter(accounting_period=period, **kwds).all()
+        groups = oas.models.JournalEntryGroup.objects.filter(accounting_period=period, **kwds).all()
         return groups
 
     def load_account(self, **kwds):
         """
         """
-        return models.Account.objects.get(user=self.user, **kwds)
+        return oas.models.Account.objects.get(user=self.user, **kwds)
 
     def load_templates(self, legal_entity_code, **kwds):
         """
         """
         legal_entity = self.load_legal_entity(code=legal_entity_code)
-        return models.TemplateSet.objects.filter(legal_entity=legal_entity, **kwds).all()
+        return oas.models.TemplateSet.objects.filter(legal_entity=legal_entity, **kwds).all()
 
     def load_template(self, legal_entity_code, template_name, **kwds):
         """
         """
         legal_entity = self.load_legal_entity(code=legal_entity_code)
-        return models.TemplateSet.objects.get(legal_entity=legal_entity, name=template_name, **kwds)
+        return oas.models.TemplateSet.objects.get(legal_entity=legal_entity, name=template_name, **kwds)
 
     def update_account(self, account_code,
                        new_code,
@@ -130,7 +129,7 @@ class _EntityLocator(object):
         account.code = new_code
         account.name = new_name
         if account.account_type.code != new_account_type_code:
-            new_account_type = models.AccountType.objects.get(code=new_account_type_code)
+            new_account_type = oas.models.AccountType.objects.get(code=new_account_type_code)
             account.update_account_type(new_account_type)
 
         if new_parent_code:
@@ -165,15 +164,15 @@ class _EntityLocator(object):
             period = self.create_accounting_period(period_name, legal_entity_code)
 
         else:
-            legal_entity = _fetch_one(models.LegalEntity, code=legal_entity_code, user=self.user)
-            period = _fetch_one(models.AccountingPeriod, legal_entity=legal_entity, name=period_name)
+            legal_entity = _fetch_one(oas.models.LegalEntity, code=legal_entity_code, user=self.user)
+            period = _fetch_one(oas.models.AccountingPeriod, legal_entity=legal_entity, name=period_name)
 
         return period
 
     def exists_legal_entity_code(self, code):
         """
         """
-        legal_entity = _fetch_one_or_zero(models.LegalEntity,
+        legal_entity = _fetch_one_or_zero(oas.models.LegalEntity,
                                           code=code,
                                           user=self.user)
         return legal_entity is not None
@@ -181,7 +180,7 @@ class _EntityLocator(object):
     def exists_legal_entity_name(self, name):
         """
         """
-        legal_entity = _fetch_one_or_zero(models.LegalEntity,
+        legal_entity = _fetch_one_or_zero(oas.models.LegalEntity,
                                           name=name,
                                           user=self.user)
         return legal_entity is not None
@@ -189,18 +188,18 @@ class _EntityLocator(object):
     def create_legal_entity(self, code, name, currency_code):
         """
         """
-        tools.assert_not_none(code)
-        tools.assert_not_none(name)
-        tools.assert_not_empty(code)
-        tools.assert_not_empty(name)
-        tools.assert_no_space(code)
-        currency = _fetch_one(models.Currency, code=currency_code)
+        oas.tools.assert_not_none(code)
+        oas.tools.assert_not_none(name)
+        oas.tools.assert_not_empty(code)
+        oas.tools.assert_not_empty(name)
+        oas.tools.assert_no_space(code)
+        currency = _fetch_one(oas.models.Currency, code=currency_code)
         _LOG.info('creating legal entity %s, currency %s' % (code, currency.code))
-        legal_entity = _fetch_one_or_zero(models.LegalEntity,
+        legal_entity = _fetch_one_or_zero(oas.models.LegalEntity,
                                           code=code,
                                           user=self.user)
         if not legal_entity:
-            legal_entity = models.LegalEntity(code=code,
+            legal_entity = oas.models.LegalEntity(code=code,
                                               user=self.user)
 
         legal_entity.name = name
@@ -209,9 +208,9 @@ class _EntityLocator(object):
         return legal_entity
 
     def create_currency(self, code, name):
-        currency = _fetch_one_or_zero(models.Currency, code=code)
+        currency = _fetch_one_or_zero(oas.models.Currency, code=code)
         if not currency:
-            currency = models.Currency(code=code)
+            currency = oas.models.Currency(code=code)
 
         currency.name = name
         currency.save()
@@ -220,20 +219,20 @@ class _EntityLocator(object):
     def create_account(self, code, name, description, parent_account_code, legal_entity_code, account_type):
         """
         """
-        legal_entity = _fetch_one(models.LegalEntity, code=legal_entity_code, user=self.user)
-        account_type = _fetch_one(models.AccountType, code=account_type)
-        account = _fetch_one_or_zero(models.Account,
+        legal_entity = _fetch_one(oas.models.LegalEntity, code=legal_entity_code, user=self.user)
+        account_type = _fetch_one(oas.models.AccountType, code=account_type)
+        account = _fetch_one_or_zero(oas.models.Account,
                                      code=code,
                                      legal_entity=legal_entity,
                                      user=self.user
                                      )
-        parent_account = _fetch_one_or_zero(models.Account,
+        parent_account = _fetch_one_or_zero(oas.models.Account,
                                             code=parent_account_code,
                                             legal_entity=legal_entity,
                                             user=self.user
                                             )
         if not account:
-            account = models.Account(code=code,
+            account = oas.models.Account(code=code,
                                      legal_entity=legal_entity,
                                      user=self.user)
 
@@ -249,24 +248,24 @@ class _EntityLocator(object):
                              company_code_investment, code_liability
                              ):
 
-        owner = _fetch_one(models.LegalEntity, code=company_code_owner, user=self.user)
-        investment = _fetch_one(models.LegalEntity, code=company_code_investment, user=self.user)
-        type_asset = _fetch_one(models.AccountType, code='A')
-        type_liability = _fetch_one(models.AccountType, code='L')
-        account_asset = _fetch_one(models.Account, code=code_asset, legal_entity=owner, user=self.user)
-        account_liability = _fetch_one(models.Account, code=code_liability, legal_entity=investment, user=self.user)
+        owner = _fetch_one(oas.models.LegalEntity, code=company_code_owner, user=self.user)
+        investment = _fetch_one(oas.models.LegalEntity, code=company_code_investment, user=self.user)
+        type_asset = _fetch_one(oas.models.AccountType, code='A')
+        type_liability = _fetch_one(oas.models.AccountType, code='L')
+        account_asset = _fetch_one(oas.models.Account, code=code_asset, legal_entity=owner, user=self.user)
+        account_liability = _fetch_one(oas.models.Account, code=code_liability, legal_entity=investment, user=self.user)
         if account_asset.account_type != type_asset:
             raise OasModelError('account %s is not an asset' % code_asset)
 
         if account_liability.account_type != type_liability:
             raise OasModelError('account %s is not a liability' % code_liability)
 
-        link = _fetch_one_or_zero(models.InternalInvestment,
+        link = _fetch_one_or_zero(oas.models.InternalInvestment,
                                   account_asset=account_asset,
                                   account_liability=account_liability
                                   )
         if not link:
-            link = models.InternalInvestment(account_asset=account_asset, account_liability=account_liability)
+            link = oas.models.InternalInvestment(account_asset=account_asset, account_liability=account_liability)
             link.save()
 
         return link
@@ -274,13 +273,13 @@ class _EntityLocator(object):
     def create_accounting_period(self, name, legal_entity_code):
         """
         """
-        legal_entity = _fetch_one(models.LegalEntity, code=legal_entity_code, user=self.user)
-        accounting_period = _fetch_one_or_zero(models.AccountingPeriod,
+        legal_entity = _fetch_one(oas.models.LegalEntity, code=legal_entity_code, user=self.user)
+        accounting_period = _fetch_one_or_zero(oas.models.AccountingPeriod,
                                                name=name,
                                                legal_entity=legal_entity
                                                )
         if not accounting_period:
-            accounting_period = models.AccountingPeriod(name=name,
+            accounting_period = oas.models.AccountingPeriod(name=name,
                                                         legal_entity=legal_entity)
             accounting_period.save()
 
@@ -289,23 +288,23 @@ class _EntityLocator(object):
     def create_asset_account(self, code, name, description, parent_account_code, legal_entity_code):
         """
         """
-        return self.create_account(code, name, description, parent_account_code, legal_entity_code, models.CODE_ASSETS)
+        return self.create_account(code, name, description, parent_account_code, legal_entity_code, oas.models.CODE_ASSETS)
 
     def create_liability_account(self, code, name, description, parent_account_code, legal_entity_code):
         """
         """
         return self.create_account(code, name, description, parent_account_code, legal_entity_code,
-                                   models.CODE_LIABILITIES_EQUITY)
+                                   oas.models.CODE_LIABILITIES_EQUITY)
 
     def create_income_account(self, code, name, description, parent_account_code, legal_entity_code):
         """
         """
-        return self.create_account(code, name, description, parent_account_code, legal_entity_code, models.CODE_INCOME)
+        return self.create_account(code, name, description, parent_account_code, legal_entity_code, oas.models.CODE_INCOME)
 
     def create_expense_account(self, code, name, description, parent_account_code, legal_entity_code):
         """
         """
-        return self.create_account(code, name, description, parent_account_code, legal_entity_code, models.CODE_EXPENSE)
+        return self.create_account(code, name, description, parent_account_code, legal_entity_code, oas.models.CODE_EXPENSE)
 
     def create_operation(self, date,
                          debit_account_code,
@@ -352,17 +351,17 @@ class _EntityLocator(object):
             currency = entity.currency
 
         else:
-            currency = _fetch_one(models.Currency, code=currency_code)
+            currency = _fetch_one(oas.models.Currency, code=currency_code)
 
         (year, month, day) = map(int, date.split('-'))
         date = datetime.date(year, month, day)
         period = self.load_accounting_period(entity_code, period_name)
-        group = models.JournalEntryGroup(date=date, currency=currency, accounting_period=period)
+        group = oas.models.JournalEntryGroup(date=date, currency=currency, accounting_period=period)
         group.save()
 
         for code, description, unit_cost, quantity in list_debits:
-            account = _fetch_one(models.Account, code=code, legal_entity=entity, user=self.user)
-            entry = models.JournalEntry(
+            account = _fetch_one(oas.models.Account, code=code, legal_entity=entity, user=self.user)
+            entry = oas.models.JournalEntry(
                 account=account,
                 is_debit=True,
                 quantity=quantity,
@@ -373,8 +372,8 @@ class _EntityLocator(object):
             entry.save()
 
         for code, description, unit_cost, quantity in list_credits:
-            account = _fetch_one(models.Account, code=code, legal_entity=entity, user=self.user)
-            entry = models.JournalEntry(
+            account = _fetch_one(oas.models.Account, code=code, legal_entity=entity, user=self.user)
+            entry = oas.models.JournalEntry(
                 account=account,
                 is_debit=False,
                 quantity=quantity,
@@ -394,9 +393,9 @@ class _EntityLocator(object):
             currency = entity.currency
 
         else:
-            currency = _fetch_one(models.Currency, code=currency_code)
+            currency = _fetch_one(oas.models.Currency, code=currency_code)
 
-        templates_set = models.TemplateSet(template_currency=currency, legal_entity=entity, name=name)
+        templates_set = oas.models.TemplateSet(template_currency=currency, legal_entity=entity, name=name)
         templates_set.save()
         return templates_set
 
@@ -412,13 +411,13 @@ class _EntityLocator(object):
         """
 
         entity = templates_set.legal_entity
-        group = models.TemplateJournalEntryGroup(template_set=templates_set)
+        group = oas.models.TemplateJournalEntryGroup(template_set=templates_set)
         group.save()
 
         for code, description, unit_cost, quantity in list_debits:
             _LOG.debug('processing %s' % str([code, description, unit_cost, quantity]))
-            account = _fetch_one(models.Account, code=code, legal_entity=entity, user=self.user)
-            entry = models.TemplateJournalEntry(
+            account = _fetch_one(oas.models.Account, code=code, legal_entity=entity, user=self.user)
+            entry = oas.models.TemplateJournalEntry(
                 account=account,
                 is_debit=True,
                 quantity=quantity,
@@ -429,8 +428,8 @@ class _EntityLocator(object):
             entry.save()
 
         for code, description, unit_cost, quantity in list_credits:
-            account = _fetch_one(models.Account, code=code, legal_entity=entity, user=self.user)
-            entry = models.TemplateJournalEntry(
+            account = _fetch_one(oas.models.Account, code=code, legal_entity=entity, user=self.user)
+            entry = oas.models.TemplateJournalEntry(
                 account=account,
                 is_debit=False,
                 quantity=quantity,
@@ -465,8 +464,8 @@ class _EntityLocator(object):
     def remove_account(self, account_code, legal_entity_code):
         """
         """
-        legal_entity = models.LegalEntity.objects.get(code=legal_entity_code, user=self.user)
-        account = models.Account.objects.get(code=account_code,
+        legal_entity = oas.models.LegalEntity.objects.get(code=legal_entity_code, user=self.user)
+        account = oas.models.Account.objects.get(code=account_code,
                                              legal_entity=legal_entity,
                                              user=self.user)
         # legal_entity.clean_journal_entries(account.code)
@@ -475,7 +474,7 @@ class _EntityLocator(object):
     def delete_legal_entity(self, legal_entity_code):
         """
         """
-        legal_entity = models.LegalEntity.objects.get(code=legal_entity_code, user=self.user)
+        legal_entity = oas.models.LegalEntity.objects.get(code=legal_entity_code, user=self.user)
         legal_entity.delete()
 
 
