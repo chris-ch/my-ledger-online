@@ -11,12 +11,9 @@ from django.template import RequestContext
 
 from django.contrib.auth.decorators import login_required
 
-from django.core.paginator import EmptyPage
-from django.core.paginator import PageNotAnInteger
-
 import oas
 from oas import forms
-from oas.tools.djangoext import render_to
+from server.oas.tools.djangoext import render_to
 
 
 @render_to('test-page.html')

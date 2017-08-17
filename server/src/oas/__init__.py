@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 
 from oas import models
-from oas import tools
+from server.oas import tools
 
 _LOG = logging.getLogger('oas')
 _LOG.debug('initializing locator')
