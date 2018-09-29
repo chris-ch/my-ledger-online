@@ -1,0 +1,19 @@
+FROM python:3.7-alpine
+
+ENV PYTHONUNBUFFERED 1
+
+# installing gcc
+RUN apk add build-base
+
+# libs for matplotlib
+RUN apk add freetype-dev
+RUN apk add libpng-dev
+
+# misc
+RUN apk add postgresql-dev bash git
+
+RUN pip install Django==2.1 django-extensions==2.1 redis==2.10.6  \
+    jupyter==1.0.0 pandas==0.23.4 matplotlib==2.2.2 \
+    psycopg2==2.7.5
+
+RUN mkdir /code

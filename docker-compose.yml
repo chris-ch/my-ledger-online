@@ -1,0 +1,44 @@
+version: '2'
+services:
+
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile-django
+
+    image: django:latest
+
+    restart: always
+    command: /bin/bash /startup/startup.bash
+    hostname: django
+    environment:
+      - PYTHONPATH=/django:/code
+    working_dir: /startup
+    volumes:
+      - ./django_container:/django
+      - ./django_startup:/startup
+      - ./src:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - django-db
+    links:
+     - redis
+
+  redis:
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  django-db:
+    image: postgres:10.4-alpine
+    ports:
+      - "5432:5432"
+
+volumes:
+  redis-data:
