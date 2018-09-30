@@ -178,7 +178,7 @@ _LOG = logging.getLogger('oas.model')
 from django.db import models
 from django.contrib.auth.models import User
 
-import server.oas.tools
+import old.server.oas.tools
 
 CODE_ASSETS = 'A'
 CODE_LIABILITIES_EQUITY = 'L'
@@ -219,7 +219,7 @@ class Currency(models.Model):
 
 
 def build_tree(accounts):
-    tree = server.oas.tools.SimpleTreeSet()
+    tree = old.server.oas.tools.SimpleTreeSet()
     for account in accounts:
         if account.parent is None:
             if not tree.has_node(account):

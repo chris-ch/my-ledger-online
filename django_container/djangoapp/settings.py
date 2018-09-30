@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+APP_OAS = 'oas'
 
 # Application definition
 
@@ -38,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'oas',
+    APP_OAS,
 ]
 
 MIDDLEWARE = [
@@ -78,9 +79,10 @@ WSGI_APPLICATION = 'djangoapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
         'HOST': 'django-db',
+        'NAME': 'oas',
+        'USER': 'oas',
+        'PASSWORD': 'oas',
         'PORT': 5432,
     },
     'orig': {

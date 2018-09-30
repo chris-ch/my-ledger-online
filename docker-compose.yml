@@ -37,6 +37,10 @@ services:
 
   django-db:
     image: postgres:10.4-alpine
+    environment:
+      POSTGRES_USER: oas
+      POSTGRES_PASSWORD: oas
+      POSTGRES_DB: oas
     ports:
       - "5432:5432"
 

@@ -4,7 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 
 import oas
-import server.oas.tools
+import old.server.oas.tools
 from oas.rpc.engine import remote
 from oas.rpc.engine import remote_custom
 
@@ -99,10 +99,10 @@ def get_journal_entries(legal_entity_code, period_name=None):
 
 
 def tree_to_dict(tree, key_transform, data_transform):
-    return server.oas.tools.tree_to_dict(tree,
-                                         key_transform=key_transform,
-                                         data_transform=data_transform
-                                         )
+    return old.server.oas.tools.tree_to_dict(tree,
+                                             key_transform=key_transform,
+                                             data_transform=data_transform
+                                             )
 
 
 def trees_to_dict(trees,

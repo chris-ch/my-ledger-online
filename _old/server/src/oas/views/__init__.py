@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 
 import oas
 from oas import forms
-from server.oas.tools.djangoext import render_to
+from old.server.oas.tools.djangoext import render_to
 
 
 @render_to('test-page.html')

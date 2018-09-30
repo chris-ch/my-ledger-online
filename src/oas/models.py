@@ -330,8 +330,7 @@ class AccountingPeriod(models.Model):
 
     class Meta:
         db_table = u'oas_accounting_period'
-        unique_together = (('legal_entity', 'name'),)
-        unique_together = (('legal_entity', 'till_date'),)
+        unique_together = (('legal_entity', 'name'), ('legal_entity', 'till_date'),)
 
 
 class JournalEntryGroup(models.Model):
