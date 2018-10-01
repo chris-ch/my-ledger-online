@@ -1,5 +1,8 @@
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.decorators import permission_classes
+from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.parsers import JSONParser
 
 from oas.models import Currency
@@ -8,74 +11,78 @@ from oas.serializers import CurrencySerializer
 from oas.serializers import LegalEntitySerializer
 
 
-@csrf_exempt
-def currency_list(request):
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def currency_list(request, format=None):
     """
     Lists all currencies.
     """
     if request.method == 'GET':
         currencies = Currency.objects.all()
         serializer = CurrencySerializer(currencies, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
 
 
-@csrf_exempt
-def currency_detail(request, code):
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def currency_detail(request, code, format=None):
     """
     Retrieves a currency.
     """
     try:
         currency = Currency.objects.get(code=code)
     except Currency.DoesNotExist:
-        return HttpResponse(status=404)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'GET':
         serializer = CurrencySerializer(currency)
-        return JsonResponse(serializer.data)
+        return Response(serializer.data)
 
 
-@csrf_exempt
-def legal_entity_list(request):
+@api_view(['GET', 'POST'])
+@permission_classes((permissions.AllowAny,))
+def legal_entity_list(request, format=None):
     """
-    Lists all legal entities.
+    Lists all legal entities or creates a new legal entity.
     """
     if request.method == 'GET':
         legal_entities = LegalEntity.objects.all()
         serializer = LegalEntitySerializer(legal_entities, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = LegalEntitySerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return JsonResponse(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
-def legal_entity_detail(request, code):
+@api_view(['GET', 'PUT'])
+@permission_classes((permissions.AllowAny,))
+def legal_entity_detail(request, code, format=None):
     """
     Retrieves, updates or deletes a legal entity.
     """
     try:
         legal_entity = LegalEntity.objects.get(code=code)
     except Currency.DoesNotExist:
-        return HttpResponse(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
         serializer = LegalEntitySerializer(legal_entity)
-        return JsonResponse(serializer.data)
+        return Response(serializer.data)
 
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
         serializer = LegalEntitySerializer(legal_entity, data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data)
-        return JsonResponse(serializer.errors, status=400)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
         legal_entity.delete()
-        return HttpResponse(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)

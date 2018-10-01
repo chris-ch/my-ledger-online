@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from rest_framework.urlpatterns import format_suffix_patterns
 from oas import views
 
 urlpatterns = [
@@ -7,3 +8,5 @@ urlpatterns = [
     url(r'^legal_entities/$', views.legal_entity_list),
     url(r'^legal_entities/(?P<code>[A-Z]+)/$', views.legal_entity_detail),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
