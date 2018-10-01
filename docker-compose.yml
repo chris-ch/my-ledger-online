@@ -13,6 +13,7 @@ services:
     hostname: django
     environment:
       - PYTHONPATH=/django:/code
+      - DJANGO_SETTINGS_MODULE=djangoapp.settings
     working_dir: /startup
     volumes:
       - ./django_container:/django
