@@ -8,4 +8,6 @@ sleep 2
 
 python /startup/manage.py migrate
 
+#python /startup/manage.py createsuperuser --username oas --no-input --email oas@nowhere.ch
+
 python /startup/manage.py runserver 0.0.0.0:8000

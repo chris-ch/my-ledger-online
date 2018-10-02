@@ -2,13 +2,12 @@
 Django model for OAS.
 """
 import logging
-
-_LOG = logging.getLogger('oas.model')
-
 from django.db import models
 from django.contrib.auth.models import User
 
 import oas.tools
+
+_LOG = logging.getLogger('oas.model')
 
 CODE_ASSETS = 'A'
 CODE_LIABILITIES_EQUITY = 'L'
@@ -16,9 +15,17 @@ CODE_INCOME = 'I'
 CODE_EXPENSE = 'E'
 
 
-#
-# Custom User Model
-#
+def build_tree(accounts):
+    tree = oas.tools.SimpleTreeSet()
+    for account in accounts:
+        if account.parent is None:
+            if not tree.has_node(account):
+                tree.add_root(account)
+
+        else:
+            tree.create_parent_child(account.parent, account)
+
+    return tree.group()
 
 
 #
@@ -46,19 +53,6 @@ class Currency(models.Model):
 
     def __unicode__(self):
         return self.code
-
-
-def build_tree(accounts):
-    tree = oas.tools.SimpleTreeSet()
-    for account in accounts:
-        if account.parent is None:
-            if not tree.has_node(account):
-                tree.add_root(account)
-
-        else:
-            tree.create_parent_child(account.parent, account)
-
-    return tree.group()
 
 
 class LegalEntity(models.Model):

@@ -26,5 +26,9 @@ The command above takes several minutes to complete because the image includes P
 Database
 --
 PostgreSQL terminal (non-interactive), show all tables:
-> docker-compose exec django-db psql -d oas -U oas -c \\dt
+> docker-compose exec django-db psql -d oas -U oas -c \\\\dt
+
+Creating superuser:
+> docker-compose exec django-db psql -d oas -U oas -c "INSERT INTO auth_user (password, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) VALUES ('\\!dYsU8SlaHLj20szNG6Jkgn9rNO7r4bLy0MRwwwDT', true, 'oas' , '', '', 'oas@nowhere.ch', true, true, now());"
+
 
