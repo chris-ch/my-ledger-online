@@ -21,6 +21,6 @@ class CurrencySerializer(serializers.ModelSerializer):
 class LegalEntitySerializer(serializers.ModelSerializer):
     class Meta:
         model = LegalEntity
-        fields = ('code', 'name', 'description', 'is_individual', 'currency', 'user')
+        fields = ('code', 'name', 'description', 'is_individual', 'currency', 'owner')
 
-    user = serializers.ReadOnlyField(source='user.username')
+    owner = serializers.ReadOnlyField(source='owner.username')

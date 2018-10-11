@@ -21,7 +21,7 @@ services:
     volumes:
       - ./django_container:/django
       - ./django_startup:/startup
-      - ./src:/code
+      - ./server:/code
     ports:
       - "8000:8000"
     depends_on:

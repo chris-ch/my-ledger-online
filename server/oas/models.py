@@ -62,7 +62,7 @@ class LegalEntity(models.Model):
     description = models.TextField(blank=True)
     is_individual = models.IntegerField(null=False, default=False, blank=True)
 
-    user = models.ForeignKey(User, related_name='legal_entities', on_delete=models.PROTECT)
+    owner = models.ForeignKey(User, related_name='legal_entities', on_delete=models.PROTECT)
     currency = models.ForeignKey(Currency, related_name='+', null=False, blank=False, on_delete=models.PROTECT)
 
     class Meta:
@@ -108,7 +108,7 @@ class Account(models.Model):
 
     account_type = models.ForeignKey(AccountType, related_name='+', on_delete=models.PROTECT)
     legal_entity = models.ForeignKey(LegalEntity, related_name='accounts', on_delete=models.PROTECT)
-    user = models.ForeignKey(User, related_name='accounts', on_delete=models.PROTECT)
+    owner = models.ForeignKey(User, related_name='accounts', on_delete=models.PROTECT)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.PROTECT)
 
     class Meta:

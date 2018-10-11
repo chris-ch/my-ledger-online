@@ -120,7 +120,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True)),
                 ('is_individual', models.IntegerField(blank=True, default=False)),
                 ('currency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='oas.Currency')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='legal_entities', to=settings.AUTH_USER_MODEL)),
+                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='legal_entities', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'db_table': 'oas_legal_entity',
@@ -199,7 +199,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='account',
-            name='user',
+            name='owner',
             field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='accounts', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterUniqueTogether(
