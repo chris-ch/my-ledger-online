@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
 from rest_framework.decorators import permission_classes
@@ -32,38 +33,27 @@ class LegalEntityList(generics.ListCreateAPIView):
     serializer_class = LegalEntitySerializer
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        print('###### TEST %s ######' % str(self.request.data))
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=self.request.user)
 
 
-@permission_classes((permissions.IsAuthenticatedOrReadOnly,))
+@permission_classes((permissions.IsAdminUser,))
 class LegalEntityDetail(generics.RetrieveUpdateAPIView):
     queryset = LegalEntity.objects.all()
     serializer_class = LegalEntitySerializer
 
 
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny,))
-def currency_list(request, format=None):
-    """
-    Lists all currencies.
-    """
-    if request.method == 'GET':
-        currencies = Currency.objects.all()
-        serializer = CurrencySerializer(currencies, many=True)
-        return Response(serializer.data)
+@permission_classes((permissions.IsAuthenticatedOrReadOnly,))
+class CurrencyList(generics.ListCreateAPIView):
+    lookup_field = Currency.code
+    queryset = Currency.objects.all()
+    serializer_class = CurrencySerializer
 
 
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny,))
-def currency_detail(request, code, format=None):
-    """
-    Retrieves a currency.
-    """
-    try:
-        currency = Currency.objects.get(code=code)
-    except Currency.DoesNotExist:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+@permission_classes((permissions.IsAuthenticatedOrReadOnly,))
+class CurrencyDetail(generics.RetrieveUpdateAPIView):
+    lookup_field = Currency.code
+    queryset = Currency.objects.all()
+    serializer_class = CurrencySerializer
 
-    if request.method == 'GET':
-        serializer = CurrencySerializer(currency)
-        return Response(serializer.data)

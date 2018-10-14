@@ -60,7 +60,7 @@ class AlreadyAdded(SimpleGraphError):
         return 'Already added: %s' % repr(self.__node)
 
 
-class UnkownNode(SimpleGraphError):
+class UnknownNode(SimpleGraphError):
     def __init__(self, node):
         self.__node = node
 
@@ -87,10 +87,10 @@ class SimpleGraph(object):
         One node can not be added multiple times. Any attempt will be ignored.
         """
         self.__nodes.add(node)
-        if not self.__sources.has_key(node):
+        if node not in self.__sources:
             self.__sources[node] = set()
 
-        if not self.__destinations.has_key(node):
+        if node not in self.__destinations:
             self.__destinations[node] = set()
 
     def add_directed_edge(self, source, dest):
@@ -111,13 +111,13 @@ class SimpleGraph(object):
 
     def get_sources(self, node):
         if not self.has_node(node):
-            raise UnkownNode(node)
+            raise UnknownNode(node)
 
         return self.__sources[node]
 
     def get_destinations(self, node):
         if not self.has_node(node):
-            raise UnkownNode(node)
+            raise UnknownNode(node)
 
         return self.__destinations[node]
 
@@ -126,13 +126,13 @@ class SimpleGraph(object):
 
     def is_source(self, node):
         if not self.has_node(node):
-            raise UnkownNode(node)
+            raise UnknownNode(node)
 
         return len(self.__destinations[node]) > 0
 
     def is_destination(self, node):
         if not self.has_node(node):
-            raise UnkownNode(node)
+            raise UnknownNode(node)
 
         return len(self.__sources[node]) > 0
 
@@ -143,23 +143,23 @@ class SimpleGraph(object):
         """
         Matrix representing the graph.
         """
-        LINE_SEP = '\n'
-        matrix = LINE_SEP
+        line_sep = '\n'
+        matrix = line_sep
         nodes = [node for node in self.__nodes if not (self.is_source(node) and self.is_destination(node))]
-        left_over = [node for node in self.__nodes if not node in nodes]
+        left_over = [node for node in self.__nodes if node not in nodes]
 
         def get_node_key(node_index):
             return chr(int(node_index / 26) + ord('a')) + chr(node_index % 26 + ord('a'))
 
         for count, node in enumerate(nodes):
-            matrix += '%s: %s' % (get_node_key(count), node) + LINE_SEP
+            matrix += '%s: %s' % (get_node_key(count), node) + line_sep
 
         matrix += '%3s' % ' '
         for count_h, node_h in enumerate(nodes):
             if not self.is_destination(node_h):
                 matrix += '%3s' % (get_node_key(count_h))
 
-        matrix += LINE_SEP
+        matrix += line_sep
         for count_v, node_v in enumerate(nodes):
             if not self.is_source(node_v):
                 matrix += get_node_key(count_v)
@@ -171,10 +171,10 @@ class SimpleGraph(object):
                         else:
                             matrix += '%3s' % '.'
 
-                matrix += LINE_SEP
+                matrix += line_sep
 
         if len(left_over) > 0:
-            matrix += 'Left over: ' + LINE_SEP
+            matrix += 'Left over: ' + line_sep
             matrix += ', '.join(map(str, left_over))
 
         return matrix
@@ -301,7 +301,7 @@ class SimpleTree(Walkable):
 
     def add_child(self, parent, child):
         if not self._get_graph().has_node(parent):
-            raise UnkownNode(parent)
+            raise UnknownNode(parent)
 
         self._get_graph().add_directed_edge(parent, child)
 
@@ -335,7 +335,7 @@ def tree_to_dict(tree, key_transform=lambda x: x, data_transform=lambda x: x):
     for node, parent, level in walk:
         tr_node = safe_transform(tree, key_transform, node)
         dict_struct[tr_node] = dict()
-        if not dict_data.has_key(tr_node):
+        if tr_node not in dict_data:
             dict_data[tr_node] = safe_transform(tree, data_transform, node)
 
         if parent:
@@ -344,7 +344,7 @@ def tree_to_dict(tree, key_transform=lambda x: x, data_transform=lambda x: x):
 
     root = safe_transform(tree, key_transform, tree.get_root())
     dict_data.pop('<root>', None)
-    return (dict_struct[root], dict_data)
+    return dict_struct[root], dict_data
 
 
 def test_tree_set():

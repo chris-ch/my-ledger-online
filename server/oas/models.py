@@ -3,7 +3,7 @@ Django model for OAS.
 """
 import logging
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 import oas.tools
 
@@ -62,7 +62,7 @@ class LegalEntity(models.Model):
     description = models.TextField(blank=True)
     is_individual = models.IntegerField(null=False, default=False, blank=True)
 
-    owner = models.ForeignKey(User, related_name='legal_entities', on_delete=models.PROTECT)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='legal_entities', on_delete=models.CASCADE)
     currency = models.ForeignKey(Currency, related_name='+', null=False, blank=False, on_delete=models.PROTECT)
 
     class Meta:
@@ -108,7 +108,7 @@ class Account(models.Model):
 
     account_type = models.ForeignKey(AccountType, related_name='+', on_delete=models.PROTECT)
     legal_entity = models.ForeignKey(LegalEntity, related_name='accounts', on_delete=models.PROTECT)
-    owner = models.ForeignKey(User, related_name='accounts', on_delete=models.PROTECT)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='accounts', on_delete=models.CASCADE)
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.PROTECT)
 
     class Meta:
