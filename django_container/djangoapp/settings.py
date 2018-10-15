@@ -25,7 +25,7 @@ SECRET_KEY = 'j()&&4&t+o)^zrv297**%wxas&efe15b&@m_7dm1=ib+u$ij3_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['django', '127.0.0.1']
 
 APP_OAS = 'oas'
 

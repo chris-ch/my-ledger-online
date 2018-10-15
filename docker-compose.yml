@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
 
   django:
@@ -47,6 +47,15 @@ services:
       POSTGRES_DB: oas
     ports:
       - "5432:5432"
+
+  client:
+    image: python:3.7-alpine
+    volumes:
+      - ./client:/client
+    depends_on:
+      - django
+    working_dir: /client/scripts
+    command: /usr/bin/env python /client/scripts/setup.py
 
 volumes:
   redis-data:
