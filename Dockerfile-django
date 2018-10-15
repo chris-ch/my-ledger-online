@@ -24,3 +24,5 @@ RUN pip install \
     django-filter==2.0.0
 
 RUN mkdir /code
+
+RUN pip install lettuce==0.2.23
