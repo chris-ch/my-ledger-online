@@ -1,5 +1,7 @@
 import logging
 import http.client
+import aloe
+import nose
 
 host = 'django'
 port = 8000
@@ -38,4 +40,5 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    nose.main()
+

@@ -49,13 +49,17 @@ services:
       - "5432:5432"
 
   client:
-    image: python:3.7-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+
     volumes:
       - ./client:/client
     depends_on:
       - django
-    working_dir: /client/scripts
-    command: /usr/bin/env python /client/scripts/setup.py
+    working_dir: /client/data
+    command: bash -c "/usr/bin/env nosetests --verbosity=10 --with-gherkin /client/data/features/legal_entities/legal_entities.feature; tail -F /dev/null"
+    #command: /usr/bin/env python /client/scripts/setup.py
 
 volumes:
   redis-data:

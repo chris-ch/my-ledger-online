@@ -38,3 +38,15 @@ Django-side scripts
 -------------------
 docker-compose exec django python manage.py runscript -v2 <script_name>
 
+
+Client BDD tests
+----------------
+
+Verbose version:
+
+> docker-compose exec client bash -c "cd /client/data; /usr/bin/env nosetests --verbosity=10 --with-gherkin /client/data/features/legal_entities"
+
+More quiet version:
+
+> docker-compose exec client bash -c "cd /client/data; /usr/bin/env nosetests --verbosity=10 --with-gherkin /client/data/features/legal_entitiesgit statu"
+
