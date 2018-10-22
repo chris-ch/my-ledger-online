@@ -5,8 +5,7 @@ Feature: Creating and querying legal entities
     When 'aqua' creates the legal entity 'Aqua corp.'
     And 'blue' creates the legal entity 'Blue & Associates'
     And 'blue' creates the legal entity 'Rainbow, llc'
-    Then I should get a '200' response
-    And 'aqua' should see legal entity 'Aqua corp.'
+    Then 'aqua' should see legal entity 'Aqua corp.'
     And 'aqua' should not see legal entity 'Blue & Associates'
     And 'aqua' should not see legal entity 'Rainbow, llc'
     And 'blue' should not see legal entity 'Aqua corp.'
