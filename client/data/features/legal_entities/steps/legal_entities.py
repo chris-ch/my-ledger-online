@@ -40,13 +40,15 @@ def lookup_user(session, username: str):
     res = session.get(uri('users/%s.json' % username))
     logging.info('response status: %s', res.status_code)
     logging.info('response: %s', json.loads(res.text))
-    return json.loads(res.text)
+    if res.status_code == requests.codes.not_found:
+        return None
+
+    return res.json()
 
 
 def create_user(session, username: str, password: str):
     logging.info('creating user %s', username)
     payload = {
-        'code': '%s' % username,
         'username': '%s' % username,
         'email': '%s@test.test' % username,
         'password': password,
@@ -57,11 +59,26 @@ def create_user(session, username: str, password: str):
     logging.info('response: %s', res.text)
 
 
+def update_user(session, username: str, password: str):
+    logging.info('updating user %s', username)
+    payload = {
+        'username': '%s' % username,
+        'password': password,
+    }
+    res = session.put(uri('users/%s.json' % username), data=json.dumps(payload))
+    logging.info('response status: %s', res.status_code)
+    logging.info('response: %s', res.text)
+
+
 @step("User \'(.*)\' is in the system identified by \'(.*)\'")
 def step_impl(step_def: Step, username: str, password: str):
     session = connect('oas', 'oas')
-    lookup_user(session, username)
-    create_user(session, username, password)
+    user = lookup_user(session, username)
+    if not user:
+        create_user(session, username, password)
+
+    else:
+        update_user(session, username, password)
 
 
 @step("\'(.*)\' creates the legal entity \'(.*)\'")
