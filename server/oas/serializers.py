@@ -9,9 +9,13 @@ from oas.models import LegalEntity
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'legal_entities')
+        fields = ('id', 'username')
 
-    legal_entities = serializers.PrimaryKeyRelatedField(many=True, queryset=LegalEntity.objects.all())
+    #legal_entities = serializers.PrimaryKeyRelatedField(many=True, queryset=LegalEntity.objects.all())
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
 
 
 class CurrencySerializer(serializers.ModelSerializer):

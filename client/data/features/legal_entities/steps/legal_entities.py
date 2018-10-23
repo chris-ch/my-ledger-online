@@ -6,7 +6,6 @@ import json
 import logging
 import requests
 
-_srv = None
 _host = 'django'
 _port = 8000
 
@@ -17,9 +16,9 @@ def uri(path):
     return uri_value
 
 
-def connect():
-    world.session = requests.Session()
-    world.session.auth = ('oas', 'oas')
+def connect(username, password):
+    session = requests.Session()
+    session.auth = (username, password)
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -27,7 +26,8 @@ def connect():
         'Cache-Control': 'no-cache',
         'Postman-Token': '8fb9cf48-e7aa-4135-bd9f-306349e4a180'
     }
-    world.session.headers.update(headers)
+    session.headers.update(headers)
+    return session
 
 
 @after.all
@@ -35,22 +35,38 @@ def release():
     pass
 
 
-@step("User \'(.*)\' is in the system")
-def step_impl(step_def: Step, username: str):
+def lookup_user(session, username: str):
+    logging.info('looking up user %s', username)
+    res = session.get(uri('users/%s.json' % username))
+    logging.info('response status: %s', res.status_code)
+    logging.info('response: %s', json.loads(res.text))
+    return json.loads(res.text)
+
+
+def create_user(session, username: str, password: str):
     logging.info('creating user %s', username)
     payload = {
         'code': '%s' % username,
         'username': '%s' % username,
         'email': '%s@test.test' % username,
+        'password': password,
         'legal_entities': []
     }
-    res = world.session.post(uri('users.json'), data=json.dumps(payload))
+    res = session.post(uri('users.json'), data=json.dumps(payload))
     logging.info('response status: %s', res.status_code)
-    logging.info('response: %s', json.loads(res.text))
+    logging.info('response: %s', res.text)
+
+
+@step("User \'(.*)\' is in the system identified by \'(.*)\'")
+def step_impl(step_def: Step, username: str, password: str):
+    session = connect('oas', 'oas')
+    lookup_user(session, username)
+    create_user(session, username, password)
 
 
 @step("\'(.*)\' creates the legal entity \'(.*)\'")
 def step_impl(step_def: Step, username: str, legal_entity_code: str):
+    session = connect(username, 'oas')
     logging.info('creating legal entity %s for user %s', legal_entity_code, username)
     payload = {
         'code': '%s' % legal_entity_code,

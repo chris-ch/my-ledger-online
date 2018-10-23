@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
 from rest_framework.decorators import permission_classes
 from rest_framework import permissions
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
@@ -23,8 +24,16 @@ class UserList(generics.ListCreateAPIView):
 
 @permission_classes((permissions.IsAdminUser,))
 class UserDetail(generics.RetrieveUpdateAPIView):
+    lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    #def get_object(self):
+    #    username = self.kwargs["username"]
+    #    return get_object_or_404(User, username=username)
+#
+    #def put(self, request, *args, **kwargs):
+    #    return self.update(request, *args, **kwargs)
 
 
 @permission_classes((permissions.IsAuthenticatedOrReadOnly,))
