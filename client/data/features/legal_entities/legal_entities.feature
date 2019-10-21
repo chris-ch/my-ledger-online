@@ -1,7 +1,7 @@
 Feature: Creating and querying legal entities
   Scenario: Creating legal entities
-    Given User 'red' is in the system identified by 'aquapwd'
-    And User 'green' is in the system identified by 'bluepwd'
+    Given User 'aqua' is in the system
+    And User 'blue' is in the system
     When 'aqua' creates the legal entity 'Aqua corp.'
     And 'blue' creates the legal entity 'Blue & Associates'
     And 'blue' creates the legal entity 'Rainbow, llc'

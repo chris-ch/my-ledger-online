@@ -16,6 +16,22 @@ from oas.serializers import CurrencySerializer
 from oas.serializers import LegalEntitySerializer
 
 
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow owners of an object to edit it.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        logging.info('checking permissions')
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Write permissions are only allowed to the owner of the snippet.
+        return obj.owner == request.user
+
+
 @permission_classes((permissions.IsAdminUser,))
 class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
@@ -36,18 +52,21 @@ class UserDetail(generics.RetrieveUpdateAPIView):
     #    return self.update(request, *args, **kwargs)
 
 
-@permission_classes((permissions.IsAuthenticatedOrReadOnly,))
+@permission_classes((permissions.IsAuthenticated,))
 class LegalEntityList(generics.ListCreateAPIView):
     queryset = LegalEntity.objects.all()
     serializer_class = LegalEntitySerializer
 
     def perform_create(self, serializer):
-        print('###### TEST %s ######' % str(self.request.data))
         serializer.is_valid(raise_exception=True)
         serializer.save(owner=self.request.user)
 
+    def get(self, request, *args, **kwargs):
+        logging.info('*** CHECKING ***')
+        return self.list(request, *args, **kwargs)
 
-@permission_classes((permissions.IsAdminUser,))
+
+@permission_classes((IsOwnerOrReadOnly,))
 class LegalEntityDetail(generics.RetrieveUpdateAPIView):
     queryset = LegalEntity.objects.all()
     serializer_class = LegalEntitySerializer

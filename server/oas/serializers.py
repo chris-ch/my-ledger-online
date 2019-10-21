@@ -14,7 +14,22 @@ class UserSerializer(serializers.ModelSerializer):
     #legal_entities = serializers.PrimaryKeyRelatedField(many=True, queryset=LegalEntity.objects.all())
 
     def create(self, validated_data):
+        password = validated_data.pop('password')
         user = User.objects.create_user(**validated_data)
+        if password is not None:
+           user.set_password(password)
+           user.save()
+
+        return user
+
+    def update(self, user, validated_data):
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            if password is not None:
+                logging.info('setting password: %s', password)
+                user.set_password(password)
+
+        user.email = validated_data.get('email', user.email)
         return user
 
 

@@ -10,6 +10,10 @@ _host = 'django'
 _port = 8000
 
 
+def get_fake_password(username):
+    return username + '_pwd'
+
+
 def uri(path):
     uri_value = 'http://%s:%s/%s' % (_host, _port, path)
     logging.info('building uri: %s', uri_value)
@@ -17,6 +21,7 @@ def uri(path):
 
 
 def connect(username, password):
+    logging.info('connecting as %s, password: %s', username, password)
     session = requests.Session()
     session.auth = (username, password)
     headers = {
@@ -70,8 +75,9 @@ def update_user(session, username: str, password: str):
     logging.info('response: %s', res.text)
 
 
-@step("User \'(.*)\' is in the system identified by \'(.*)\'")
-def step_impl(step_def: Step, username: str, password: str):
+@step("User \'(.*)\' is in the system")
+def step_impl(step_def: Step, username: str):
+    password = get_fake_password(username)
     session = connect('oas', 'oas')
     user = lookup_user(session, username)
     if not user:
@@ -83,19 +89,19 @@ def step_impl(step_def: Step, username: str, password: str):
 
 @step("\'(.*)\' creates the legal entity \'(.*)\'")
 def step_impl(step_def: Step, username: str, legal_entity_code: str):
-    session = connect(username, 'oas')
+    password = get_fake_password(username)
+    session = connect(username, password)
     logging.info('creating legal entity %s for user %s', legal_entity_code, username)
     payload = {
         'code': '%s' % legal_entity_code,
         'name': '%s' % legal_entity_code,
         'is_individual': 0,
         'currency': 'EUR',
-        'user': username,
         'description': 'test'
     }
-    world.response = world.session.post(uri('legal_entities.json'), data=json.dumps(payload))
-    logging.info('response status: %s', world.response.status_code)
-    logging.info('response: %s', json.loads(world.response.text))
+    response = session.post(uri('legal_entities.json'), data=json.dumps(payload))
+    logging.info('response status: %s', response.status_code)
+    logging.info('response: %s', response.json())
 
 
 @step("I should get a \'(.*)\' response")

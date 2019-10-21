@@ -2,6 +2,7 @@ version: '3'
 services:
 
   django:
+    container_name: django-server
     build:
       context: .
       dockerfile: Dockerfile-django
@@ -31,6 +32,7 @@ services:
      - redis
 
   redis:
+    container_name: redis-server
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
     hostname: redis
@@ -40,6 +42,7 @@ services:
       - redis-data:/data
 
   django-db:
+    container_name: django-db
     image: postgres:10.4-alpine
     environment:
       POSTGRES_USER: oas
@@ -49,6 +52,7 @@ services:
       - "5432:5432"
 
   client:
+    container_name: web-client
     build:
       context: .
       dockerfile: Dockerfile-client
