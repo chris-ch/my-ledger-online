@@ -38,3 +38,5 @@ nosetests.xml
 .idea
 
 *.secrets
+.venv
+data/store
