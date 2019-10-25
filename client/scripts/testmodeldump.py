@@ -62,9 +62,9 @@ def load_journal_entries(entity: LegalEntity, period_name: str, journal_file: st
 
 def main():
     keyvalue.set_store_path('../../data/store')
-
+    keyvalue.empty_store()
     le1 = LegalEntity(code='le001', name='Legal Entity 1', currency='usd', is_individual=False)
-    period_name =' Exercice 2011'
+    period_name = 'Exercice 2011'
     end_date = date(2011, 12, 31)
     load_accounts(le1, period_name, end_date, '../data/assets.csv', 'A')
     load_accounts(le1, period_name, end_date, '../data/liabilities.csv', 'L')
@@ -74,7 +74,18 @@ def main():
 
     for account in le1.accounts:
         for period in account.periods:
-            keyvalue.add_to_store('/'.join(['entities', le1.code, period.name, account.code]), bytes(JournalEntrySchema().dumps(period.entries, many=True, indent=4), encoding='utf-8'))
+            entries_by_month = period.entries_by_month()
+            for year, month in entries_by_month:
+                entry_key = '/'.join(['entities',
+                                      le1.code,
+                                      period.name,
+                                      account.code,
+                                      '{:04d}'.format(year),
+                                      '{:02d}'.format(month)
+                                      ]
+                                     )
+                data = JournalEntrySchema(many=True).dumps(entries_by_month[(year, month)], indent=4)
+                keyvalue.add_to_store(entry_key, bytes(data, 'utf8'))
 
 
 if __name__ == '__main__':

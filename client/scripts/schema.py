@@ -15,19 +15,20 @@ class AutoSchema(Schema):
 
 
 class JournalEntryGroupSchema(AutoSchema):
-    id = fields.UUID(missing=uuid.uuid1)
+    id = fields.UUID(missing=uuid.uuid4)
     date = fields.Date(required=True)
     description = fields.String()
     currency = fields.String(required=True)
 
 
 class JournalEntrySchema(AutoSchema):
+    id = fields.UUID(missing=uuid.uuid4)
     description = fields.String()
     ref_num = fields.Integer()
     quantity = fields.Decimal(required=True, default=1, as_string=True)
     unit_cost = fields.Decimal(required=True, default=1, as_string=True)
     is_debit = fields.Boolean(required=True)
-    entry_group = fields.Nested(JournalEntryGroupSchema, required=True, only=['id'])
+    entry_group = fields.Nested(JournalEntryGroupSchema, required=True)
 
 
 class AccountingPeriodSchema(AutoSchema):
@@ -58,4 +59,3 @@ class LegalEntitySchema(AutoSchema):
     accounts = fields.Nested(AccountSchema, many=True)
     created_at = fields.DateTime()
     is_deleted = fields.Boolean()
-

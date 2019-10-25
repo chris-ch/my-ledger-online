@@ -1,19 +1,36 @@
 import decimal
 import uuid
-from collections import Iterable
+from collections import defaultdict
+from typing import Iterable, Dict
 from datetime import date
 
 
 class AccountingPeriod(object):
-    def __init__(self, name: str, end_date: date=None, entries=None):
+    def __init__(self, name: str, end_date: date=None, entries: Iterable['JournalEntry']=None):
         self.name = name
         self.end_date = end_date
         self.entries = entries if entries else list()
 
+    def get_grouped_entries(self) -> Dict['JournalEntryGroup', Iterable['JournalEntry']]:
+        groups = defaultdict(list)
+        for entry in self.entries:
+            groups[entry.entry_group].append(entry)
+
+        return groups
+
+    def entries_by_month(self):
+        by_month = defaultdict(list)
+        for entry in self.entries:
+            year = entry.entry_group.as_of_date.year
+            month = entry.entry_group.as_of_date.month
+            by_month[(year, month)].append(entry)
+
+        return by_month
+
 
 class Account(object):
 
-    def __init__(self, code: str, name: str, account_type: str, periods=None, description=None, parent_account=None):
+    def __init__(self, code: str, name: str, account_type: str, periods: Iterable[AccountingPeriod]=None, description: str=None, parent_account: 'Account'=None):
         self.code = code
         self.name = name
         self.account_type = account_type
@@ -43,7 +60,7 @@ class LegalEntity(object):
         self.is_individual = is_individual
         self.accounts = list()
 
-    def add_account(self, account: Account):
+    def add_account(self, account: Account) -> None:
         self.accounts.append(account)
 
     def find_account_by_code(self, code: str) -> Account:
@@ -60,14 +77,15 @@ class LegalEntity(object):
 
 class JournalEntryGroup(object):
     def __init__(self, as_of_date: date, currency: str, id=None, description: str=None):
-        self.id = id if id else uuid.uuid1()
+        self.id = id if id else uuid.uuid4()
         self.as_of_date = as_of_date
         self.description = description
         self.currency = currency.upper()
 
 
 class JournalEntry(object):
-    def __init__(self, quantity: decimal, unit_cost: decimal, is_debit: bool, entry_group: JournalEntryGroup, ref_num: int=None, description: str=None):
+    def __init__(self, quantity: decimal, unit_cost: decimal, is_debit: bool, entry_group: JournalEntryGroup, id=None, ref_num: int=None, description: str=None):
+        self.id = id if id else uuid.uuid4()
         self.quantity = quantity
         self.unit_cost = unit_cost
         self.is_debit = is_debit
