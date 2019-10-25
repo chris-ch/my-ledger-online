@@ -8,7 +8,7 @@ from model import LegalEntity, Account, JournalEntryGroup, AccountingPeriod, Jou
 from schema import LegalEntitySchema, JournalEntrySchema, JournalEntryGroupSchema
 
 
-def load_accounts(entity: LegalEntity, accounts_file, account_type):
+def load_accounts(entity: LegalEntity, period_name: str, end_date: date, accounts_file, account_type):
     with open(accounts_file) as csvfile:
         accounts = csv.reader(csvfile, delimiter=',')
         first_line = True
@@ -19,6 +19,7 @@ def load_accounts(entity: LegalEntity, accounts_file, account_type):
             else:
                 code, label, parent_code, _ = fields
                 account = Account(code=code, name=label, description=label, account_type=account_type)
+                account.periods.append(AccountingPeriod(name=period_name, end_date=end_date))
                 if parent_code:
                     sub_accounts[parent_code].append(account)
 
@@ -31,8 +32,7 @@ def load_accounts(entity: LegalEntity, accounts_file, account_type):
                     sub_account.parent_account = account
 
 
-def load_journal_entries(period: AccountingPeriod, journal_file: str):
-    groups = list()
+def load_journal_entries(entity: LegalEntity, period_name: str, journal_file: str):
     with open(journal_file) as csvfile:
         entries = csv.reader(csvfile, delimiter=',')
         first_line = True
@@ -44,42 +44,37 @@ def load_journal_entries(period: AccountingPeriod, journal_file: str):
                 mm_dd_yyyy, num, label, account_debit, account_credit, amount = map(str.strip, fields)
                 as_of_date = datetime.strptime(mm_dd_yyyy, '%m/%d/%Y').date()
                 if num != prev_num:
-                    if group:
-                        groups.append(group)
-                    group = JournalEntryGroup(as_of_date=as_of_date, currency='chf', accounting_period=period)
+                    group = JournalEntryGroup(as_of_date=as_of_date, currency='chf')
                     prev_num = num
 
                 if len(account_debit) != 0:
-                    target_account = period.legal_entity.find_account_by_code(account_debit)
-                    entry = JournalEntry(quantity=amount, unit_cost=1, is_debit=True, account=target_account, description=label)
-                    group.entries.append(entry)
+                    entry = JournalEntry(quantity=amount, unit_cost=1, is_debit=True, entry_group=group, description=label)
+                    account = entity.find_account_by_code(account_debit)
+                    period = account.find_accounting_period_by_name(period_name)
+                    period.entries.append(entry)
 
                 if len(account_credit) != 0:
-                    target_account = period.legal_entity.find_account_by_code(account_credit)
-                    entry = JournalEntry(quantity=amount, unit_cost=1, is_debit=False, account=target_account, description=label)
-                    group.entries.append(entry)
-
-    return groups
+                    entry = JournalEntry(quantity=amount, unit_cost=1, is_debit=False, entry_group=group, description=label)
+                    account = entity.find_account_by_code(account_credit)
+                    period = account.find_accounting_period_by_name(period_name)
+                    period.entries.append(entry)
 
 
 def main():
     keyvalue.set_store_path('../../data/store')
 
     le1 = LegalEntity(code='le001', name='Legal Entity 1', currency='usd', is_individual=False)
-    period = AccountingPeriod(name='Exercice 2011', legal_entity=le1, end_date=date(2011, 12 ,31))
+    period_name =' Exercice 2011'
+    end_date = date(2011, 12, 31)
+    load_accounts(le1, period_name, end_date, '../data/assets.csv', 'A')
+    load_accounts(le1, period_name, end_date, '../data/liabilities.csv', 'L')
+    load_accounts(le1, period_name, end_date, '../data/revenues.csv', 'I')
+    load_accounts(le1, period_name, end_date, '../data/expenses.csv', 'E')
+    load_journal_entries(le1, period_name, '../data/journal-2011.csv')
 
-    load_accounts(le1, '../data/assets.csv', 'A')
-    load_accounts(le1, '../data/liabilities.csv', 'L')
-    load_accounts(le1, '../data/revenues.csv', 'I')
-    load_accounts(le1, '../data/expenses.csv', 'E')
-
-    groups = load_journal_entries(period, '../data/journal-2011.csv')
-
-    print(LegalEntitySchema().dumps(le1, indent=4))
-    keyvalue.add_to_store('/'.join(['entities', le1.code]), bytes(LegalEntitySchema().dumps(le1, indent=4), encoding='utf-8'))
-    print(groups[0].entries[0])
-    print(JournalEntrySchema().dumps(groups[0].entries[0], indent=4))
-    keyvalue.add_to_store('/'.join(['journal', le1.code, period.name]), bytes(JournalEntryGroupSchema(many=True).dumps(groups, indent=4), encoding='utf-8'))
+    for account in le1.accounts:
+        for period in account.periods:
+            keyvalue.add_to_store('/'.join(['entities', le1.code, period.name, account.code]), bytes(JournalEntrySchema().dumps(period.entries, many=True, indent=4), encoding='utf-8'))
 
 
 if __name__ == '__main__':
