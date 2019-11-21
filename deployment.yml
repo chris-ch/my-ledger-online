@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Online Ledger Infrastructure Stack
+
+Parameters:
+  Stage:
+    Description: Application deployment stage.
+    Type: String
+    Default: LOCAL
+    AllowedValues:
+    - PROD
+    - TEST
+    - LOCAL
+
+  Region:
+    Description:
+
+Resources:
+  LedgerBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: Ledger
+      VersioningConfiguration:
+        Status: Disabled
+
+  SampleFunc:
+    Type: "AWS::Lambda::Function"
+
+    Properties:
+      FunctionName: "Sample"
+      Handler: "basic.handler"
+      Role:
+        Fn::GetAtt:
+          - "LambdaExecutionRole"
+          - "Arn"
+      Code:
+        S3Bucket: "__local__"
+        S3Key: "/opt/lambda"
+      Runtime: "python3.8"
+      Timeout: 25
+      TracingConfig:
+        Mode: "Active"

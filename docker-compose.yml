@@ -1,69 +1,24 @@
-version: '3'
+version: '3.7'
 services:
 
-  django:
-    container_name: django-server
-    build:
-      context: .
-      dockerfile: Dockerfile-django
-
-    image: django:latest
-
-    restart: always
-    command: /bin/bash /startup/startup.bash
-    hostname: django
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4567-4584:4567-4584"
+      - "${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}"
     environment:
-      - PYTHONPATH=/django:/code
-      - DJANGO_SETTINGS_MODULE=djangoapp.settings
-
-    env_file: django.secrets
-
-    working_dir: /startup
+      - SERVICES=${SERVICES- }
+      - DEBUG=${DEBUG- }
+      - DATA_DIR=${DATA_DIR- }
+      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-local}
+      - LAMBDA_REMOTE_DOCKER=${LAMBDA_REMOTE_DOCKER-False}
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
-      - ./django_container:/django
-      - ./django_startup:/startup
-      - ./server:/code
-    ports:
-      - "8000:8000"
-    depends_on:
-      - redis
-      - django-db
-    links:
-     - redis
-
-  redis:
-    container_name: redis-server
-    image: redis:4.0.5-alpine
-    command: ["redis-server", "--appendonly", "yes"]
-    hostname: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-
-  django-db:
-    container_name: django-db
-    image: postgres:10.4-alpine
-    environment:
-      POSTGRES_USER: oas
-      POSTGRES_PASSWORD: oas
-      POSTGRES_DB: oas
-    ports:
-      - "5432:5432"
-
-  client:
-    container_name: web-client
-    build:
-      context: .
-      dockerfile: Dockerfile-client
-
-    volumes:
-      - ./client:/client
-    depends_on:
-      - django
-    working_dir: /client/data
-    command: bash -c "/usr/bin/env nosetests --verbosity=10 --with-gherkin /client/data/features/legal_entities/legal_entities.feature; tail -F /dev/null"
-    #command: /usr/bin/env python /client/scripts/setup.py
-
-volumes:
-  redis-data:
+      - type: bind
+        source: "${TMPDIR:-/tmp/localstack}"
+        target: /tmp/localstack
+      - type: bind
+        source: ./lambda
+        target: /opt/lambda

@@ -40,3 +40,5 @@ nosetests.xml
 *.secrets
 .venv
 data/store
+/old-client
+_old

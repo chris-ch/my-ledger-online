@@ -1,52 +1,50 @@
 Online Ledger
 =============
 
+Launching localstack with some logging:
 
-Server interaction
-------------------
+> DEBUG=1 docker-compose up
 
+Cloudformation deployment:
+```
+aws  --endpoint-url=http://localhost:4581 \
+    cloudformation create-stack \
+    --stack-name ledger-stack \
+    --template-body file://deployment.yml \
+    --parameters "ParameterKey=Region,ParameterValue=us-east-1"
 
-Start the app using:
-> docker-compose up
+```
 
-For running shell commands within the running app, prefix them with `docker-compose exec django`
+Or manually: initial call for function creation:
+```
+aws  --endpoint-url=http://localhost:4574 \
+    lambda create-function \
+    --function-name sample \
+    --code S3Bucket="__local__",S3Key="/opt/lambda" \
+    --handler basic.handler  \
+    --runtime python3 \
+    --role localrole
+```
 
-For example database migrations are performed with the following command:
-> docker-compose exec django python manage.py migrate
+Function call:
+```
+aws  --endpoint-url=http://localhost:4574 \
+    lambda invoke \
+    --function-name sample \
+    --payload '{"input": "dummy"}' output
+```
 
-Or for executing a script:
-> docker-compose exec django python manage.py runscript -v2 ping --script-args hello
+Code changes are manually activated:
+```
+aws  --endpoint-url=http://localhost:4574 \
+    lambda update-function-code \
+    --function-name sample \
+    --s3-bucket "__local__" \
+    --s3-key "/opt/lambda"
+```
 
-Removing volumes when shutting down:
-> docker-compose down -v
-
-For building a new Django docker image after an update:
-> docker-compose build
-
-The command above takes several minutes to complete because the image includes Pandas and Matplotlib.
-
-Database
---------
-PostgreSQL terminal (non-interactive), show all tables:
-> docker-compose exec django-db psql -d oas -U oas -c \\\\dt
-
-Creating superuser:
-> docker-compose exec django-db psql -d oas -U oas -c "INSERT INTO auth_user (password, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) VALUES ('\\!dYsU8SlaHLj20szNG6Jkgn9rNO7r4bLy0MRwwwDT', true, 'oas' , '', '', 'oas@nowhere.ch', true, true, now());"
-
-
-Django-side scripts
--------------------
-docker-compose exec django python manage.py runscript -v2 <script_name>
-
-
-Client BDD tests
-----------------
-
-Verbose version:
-
-> docker-compose exec client bash -c "cd /client/data; /usr/bin/env nosetests --verbosity=10 --with-gherkin /client/data/features/legal_entities"
-
-More quiet version:
-
-> docker-compose exec client bash -c "cd /client/data; /usr/bin/env nosetests --verbosity=10 --with-gherkin /client/data/features/legal_entitiesgit statu"
-
+Listing S3 buckets:
+```
+aws  --endpoint-url=http://localhost:4572 \
+    s3 ls
+```
