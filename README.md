@@ -1,9 +1,11 @@
 Online Ledger
 =============
 
-Launching localstack with some logging:
+Launching the localstack set of services:
 
 > DEBUG=1 docker-compose up
+
+You get more detailed logging by setting the DEBUG environment variable.
 
 Cloudformation deployment:
 ```
@@ -13,17 +15,6 @@ aws  --endpoint-url=http://localhost:4581 \
     --template-body file://deployment.yml \
     --parameters "ParameterKey=Region,ParameterValue=us-east-1"
 
-```
-
-Or manually: initial call for function creation:
-```
-aws  --endpoint-url=http://localhost:4574 \
-    lambda create-function \
-    --function-name sample \
-    --code S3Bucket="__local__",S3Key="/opt/lambda" \
-    --handler basic.handler  \
-    --runtime python3 \
-    --role localrole
 ```
 
 Function call:

@@ -42,3 +42,4 @@ nosetests.xml
 data/store
 /old-client
 _old
+output
