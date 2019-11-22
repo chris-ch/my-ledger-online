@@ -9,7 +9,7 @@ You get more detailed logging by setting the DEBUG environment variable.
 
 Cloudformation deployment:
 ```
-aws  --endpoint-url=http://localhost:4581 \
+> aws  --endpoint-url=http://localhost:4581 \
     cloudformation create-stack \
     --stack-name ledger-stack \
     --template-body file://deployment.yml \
@@ -19,7 +19,7 @@ aws  --endpoint-url=http://localhost:4581 \
 
 Function call:
 ```
-aws  --endpoint-url=http://localhost:4574 \
+> aws  --endpoint-url=http://localhost:4574 \
     lambda invoke \
     --function-name Sample \
     --payload '{"input": "dummy"}' output
@@ -27,7 +27,7 @@ aws  --endpoint-url=http://localhost:4574 \
 
 Code changes are manually activated:
 ```
-aws  --endpoint-url=http://localhost:4574 \
+> aws  --endpoint-url=http://localhost:4574 \
     lambda update-function-code \
     --function-name Sample \
     --s3-bucket "__local__" \
@@ -36,10 +36,15 @@ aws  --endpoint-url=http://localhost:4574 \
 
 Listing S3 buckets:
 ```
-aws  --endpoint-url=http://localhost:4572 s3 ls
+> aws  --endpoint-url=http://localhost:4572 s3 ls
 ```
 
 Listing functions:
 ```
-aws  --endpoint-url=http://localhost:4574 lambda list-functions
+> aws  --endpoint-url=http://localhost:4574 lambda list-functions
+```
+
+Listing functions:
+```
+> aws --endpoint-url=http://localhost:4567 cloudformation describe-stacks --stack-name ledger-stack --query Stacks[0].Outputs
 ```

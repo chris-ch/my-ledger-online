@@ -21,6 +21,16 @@ Parameters:
     - eu-west-1
     - eu-west-2
 
+  S3EndPointURL:
+    Description: Endpoint S3
+    Type: String
+    Default: http://localhost:4572
+
+  ApiGatewayEndPointURL:
+    Description: Endpoint API Gateway
+    Type: String
+    Default: http://localhost:4567
+
 Resources:
   LedgerBucket:
     Type: AWS::S3::Bucket
@@ -30,18 +40,18 @@ Resources:
       VersioningConfiguration:
         Status: Disabled
 
-  SampleFunc:
+  LedgerFunc:
     Type: "AWS::Lambda::Function"
 
     Properties:
-      FunctionName: "Sample"
-      Handler: "basic.handler"
+      FunctionName: "Ledger"
+      Handler: "ledger.handler"
       Environment:
         Variables:
           AWS_ACCESS_KEY_ID: ""
           AWS_SECRET_ACCESS_KEY: ""
           AWS_REGION: !Ref Region
-          S3_ENDPOINT_URL: http://localhost:4572
+          S3_ENDPOINT_URL: !Ref S3EndPointURL
           BUCKET_NAME: Ledger
       Role:
         Fn::GetAtt:
@@ -54,3 +64,134 @@ Resources:
       Timeout: 25
       TracingConfig:
         Mode: "Active"
+
+  LedgerRestApi:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Description: Handling Ledger Entries
+      Name: "LedgerRestApi"
+
+  LedgerEntryModel:
+    Type: "AWS::ApiGateway::Model"
+    Properties:
+      ContentType": "application/json"
+      Name: LedgerEntry
+      RestApiId:
+        Ref: LedgerRestApi
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        title: "LedgerEntry"
+        type: object
+        properties:
+          accountCode: string
+          referenceCode: string
+          description: string
+          quantity: number
+          unitCost: number
+          entryType: string
+
+  LedgerEntriesGroupModel:
+    Type: "AWS::ApiGateway::Model"
+    Properties:
+      ContentType": "application/json"
+      Name: LedgerEntriesGroup
+      RestApiId:
+        Ref: LedgerRestApi
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        title: "LedgerEntriesGroup"
+        type: object
+        properties:
+          asOfDate:
+            type: string
+          currency:
+            type: string
+          entries:
+            type: array
+            items:
+              $ref:
+                Fn::Join:
+                  - ""
+                  - "https://apigateway.amazonaws.com/restapis/"
+                  - Ref: "LedgerRestApi"
+                  - "/models/"
+                  - Ref: "LedgerEntryModel"
+
+  LedgerEntriesResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      RestApiId:
+        Ref: LedgerRestApi
+      ParentId:
+        Fn::GetAtt:
+          - "LedgerRestApi"
+          - "RootResourceId"
+      PathPart: "entries"
+
+  LedgerEntriesGet:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId:
+        Ref: "LedgerRestApi"
+      ResourceId:
+        Ref: "LedgerEntriesResource"
+      HttpMethod: "GET"
+      AuthorizationType: "NONE"
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Join:
+            - ""
+            -
+              - "arn:aws:apigateway:"
+              - Ref: "AWS::Region"
+              - ":lambda:path/2015-03-31/functions/"
+              - Fn::GetAtt:
+                - "Lambda"
+                - "Arn"
+              - "/invocations"
+        IntegrationResponses:
+          - ResponseTemplates:
+            application/json: "$input.json('$.body')"
+          - ResponseParameters:
+            method.response.header.Link: "integration.response.body.headers.next"
+          - StatusCode: 200
+        PassthroughBehavior: NEVER
+        RequestTemplates:
+          application/json: "{\"fun\": \"getUsers\", \"parameters\": {\"limit\": \"$input.params('limit')\", \"next\": \"$input.params('next')\"}}"
+
+      RequestParameters:
+        method.request.querystring.limit: false
+        method.request.querystring.next: false
+
+      MethodResponses:
+        - ResponseModels:
+            application/json":
+              Ref: "LedgerEntriesGroupModel"
+        - ResponseParameters:
+            method.response.header.Link: true
+        - StatusCode: 200
+
+  LedgerRestApiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    Properties:
+      RestApiId:
+        Ref: "LedgerRestApi"
+      StageName: "v1"
+    DependsOn:
+      - "LedgerEntriesGet"
+
+Outputs:
+  ApiId:
+    Value:
+      Ref: "LedgerRestApi"
+
+  ApiURL:
+    Value:
+      Fn::Join:
+        - "/"
+        -
+          - !Ref ApiGatewayEndPointURL
+          - "restapis"
+          - Ref: "LedgerRestApi"
