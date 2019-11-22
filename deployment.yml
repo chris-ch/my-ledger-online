@@ -12,7 +12,14 @@ Parameters:
     - LOCAL
 
   Region:
-    Description:
+    Description: AWS region
+    Type: String
+    Default: us-east-1
+    AllowedValues:
+    - us-east-1
+    - us-east-2
+    - eu-west-1
+    - eu-west-2
 
 Resources:
   LedgerBucket:
@@ -29,6 +36,13 @@ Resources:
     Properties:
       FunctionName: "Sample"
       Handler: "basic.handler"
+      Environment:
+        Variables:
+          AWS_ACCESS_KEY_ID: ""
+          AWS_SECRET_ACCESS_KEY: ""
+          AWS_REGION: !Ref Region
+          S3_ENDPOINT_URL: http://localhost:4572
+          BUCKET_NAME: Ledger
       Role:
         Fn::GetAtt:
           - "LambdaExecutionRole"

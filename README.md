@@ -21,7 +21,7 @@ Function call:
 ```
 aws  --endpoint-url=http://localhost:4574 \
     lambda invoke \
-    --function-name sample \
+    --function-name Sample \
     --payload '{"input": "dummy"}' output
 ```
 
@@ -29,13 +29,17 @@ Code changes are manually activated:
 ```
 aws  --endpoint-url=http://localhost:4574 \
     lambda update-function-code \
-    --function-name sample \
+    --function-name Sample \
     --s3-bucket "__local__" \
     --s3-key "/opt/lambda"
 ```
 
 Listing S3 buckets:
 ```
-aws  --endpoint-url=http://localhost:4572 \
-    s3 ls
+aws  --endpoint-url=http://localhost:4572 s3 ls
+```
+
+Listing functions:
+```
+aws  --endpoint-url=http://localhost:4574 lambda list-functions
 ```
