@@ -195,6 +195,43 @@ Resources:
       RestApiId: !Ref LedgerRestApi
       ParentId: !GetAtt LedgerRestApi.RootResourceId
       PathPart: user
+  UserResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref UsersResource
+      PathPart: "{userId}"
+  UserTasksResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref UserResource
+      PathPart: task
+  UserTaskResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref UserTasksResource
+      PathPart: "{taskId}"
+  CategoriesResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !GetAtt LedgerRestApi.RootResourceId
+      PathPart: category
+  CategoryResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref CategoriesResource
+      PathPart: "{category}"
+  CategoryTasksResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref CategoryResource
+      PathPart: task
+
   UsersGet:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -223,12 +260,6 @@ Resources:
         IntegrationResponses:
           -
             StatusCode: 201
-  UserResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref LedgerRestApi
-      ParentId: !Ref UsersResource
-      PathPart: "{userId}"
   UserGet:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -257,12 +288,6 @@ Resources:
         IntegrationResponses:
           -
             StatusCode: 204
-  UserTasksResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref LedgerRestApi
-      ParentId: !Ref UserResource
-      PathPart: task
   UserTasksGet:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -291,12 +316,6 @@ Resources:
         IntegrationResponses:
           -
             StatusCode: 201
-  UserTaskResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref LedgerRestApi
-      ParentId: !Ref UserTasksResource
-      PathPart: "{taskId}"
   UserTaskPut:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -309,8 +328,7 @@ Resources:
         IntegrationHttpMethod: POST
         Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
         IntegrationResponses:
-          -
-            StatusCode: 204
+        - StatusCode: 204
   UserTaskDelete:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -323,26 +341,7 @@ Resources:
         IntegrationHttpMethod: POST
         Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
         IntegrationResponses:
-          -
-            StatusCode: 204
-  CategoriesResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref LedgerRestApi
-      ParentId: !GetAtt LedgerRestApi.RootResourceId
-      PathPart: category
-  CategoryResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref LedgerRestApi
-      ParentId: !Ref CategoriesResource
-      PathPart: "{category}"
-  CategoryTasksResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      RestApiId: !Ref LedgerRestApi
-      ParentId: !Ref CategoryResource
-      PathPart: task
+        - StatusCode: 204
   CategoryTasksGet:
     Type: AWS::ApiGateway::Method
     Properties:

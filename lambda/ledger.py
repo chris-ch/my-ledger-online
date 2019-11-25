@@ -19,13 +19,18 @@ def make_s3():
 
 
 def handler(event, context):
-    bucket_name = os.environ['BUCKET_NAME']
-    client_s3 = make_s3()
-    client_s3.put_object(
-        Bucket=bucket_name,
-        Key='b-key',
-        Body='some body'
-    )
+    LOGGER.info('event: {}'.format(str(event)))
+    LOGGER.info('context: {}'.format(str(context)))
+
+
+    #bucket_name = os.environ['BUCKET_NAME']
+    #client_s3 = make_s3()
+    #client_s3.put_object(
+    #    Bucket=bucket_name,
+    #    Key='b-key',
+    #    Body='some body'
+    #)
+
     LOGGER.info("I've been called!")
     return {
         "event": str(event),
