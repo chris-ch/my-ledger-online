@@ -2,6 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Online Ledger Infrastructure Stack
 
 Parameters:
+
   Stage:
     Description: Application deployment stage.
     Type: String
@@ -10,6 +11,11 @@ Parameters:
     - PROD
     - TEST
     - LOCAL
+
+  DeploymentVersion:
+    Description: API deployment version
+    Type: String
+    Default: v1
 
   Region:
     Description: AWS region
@@ -71,127 +77,305 @@ Resources:
       Description: Handling Ledger Entries
       Name: "LedgerRestApi"
 
-  LedgerEntryModel:
-    Type: "AWS::ApiGateway::Model"
+  UserModel:
+    Type: AWS::ApiGateway::Model
     Properties:
-      ContentType": "application/json"
-      Name: LedgerEntry
-      RestApiId:
-        Ref: LedgerRestApi
+      ContentType: application/json
+      Name: User
+      RestApiId: !Ref LedgerRestApi
       Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        title: "LedgerEntry"
+        "$schema": http://json-schema.org/draft-04/schema#
+        title: User
+        type: object
+        additionalProperties: false
+        properties:
+          uid:
+            type: string
+          email:
+            type: string
+          phone:
+            type: string
+        required:
+        - uid
+        - email
+        - phone
+  UsersModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: application/json
+      Name: Users
+      RestApiId: !Ref LedgerRestApi
+      Schema:
+        "$schema": http://json-schema.org/draft-04/schema#
+        title: Users
+        type: array
+        items:
+          "$ref": !Join [ "/", [!Ref ApiGatewayEndPointURL, "restapis", !Ref LedgerRestApi, "models", !Ref UserModel]]
+  CreateUserModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: application/json
+      Name: CreateUser
+      RestApiId: !Ref LedgerRestApi
+      Schema:
+        "$schema": http://json-schema.org/draft-04/schema#
+        title: CreateUser
+        type: object
+        additionalProperties: false
+        properties:
+          email:
+            type: string
+          phone:
+            type: string
+        required:
+        - email
+        - phone
+  TaskModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: application/json
+      Name: Task
+      RestApiId: !Ref LedgerRestApi
+      Schema:
+        "$schema": http://json-schema.org/draft-04/schema#
+        title: Task
+        type: object
+        additionalProperties: false
+        properties:
+          tid:
+            type: integer
+          description:
+            type: string
+          created:
+            type: integer
+          due:
+            type: integer
+          category:
+            type: string
+          completed:
+            type: integer
+        required:
+        - tid
+        - description
+        - created
+  TasksModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: application/json
+      Name: Tasks
+      RestApiId: !Ref LedgerRestApi
+      Schema:
+        "$schema": http://json-schema.org/draft-04/schema#
+        title: Tasks
+        type: array
+        items:
+          "$ref": !Join [ "/", [!Ref ApiGatewayEndPointURL, "restapis", !Ref LedgerRestApi, "models", !Ref TaskModel]]
+  CreateTaskModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: application/json
+      Name: CreateTask
+      RestApiId: !Ref LedgerRestApi
+      Schema:
+        "$schema": http://json-schema.org/draft-04/schema#
+        title: CreateTask
         type: object
         properties:
-          accountCode: string
-          referenceCode: string
-          description: string
-          quantity: number
-          unitCost: number
-          entryType: string
-
-  LedgerEntriesGroupModel:
-    Type: "AWS::ApiGateway::Model"
-    Properties:
-      ContentType": "application/json"
-      Name: LedgerEntriesGroup
-      RestApiId:
-        Ref: LedgerRestApi
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        title: "LedgerEntriesGroup"
-        type: object
-        properties:
-          asOfDate:
+          description:
             type: string
-          currency:
+          due:
+            type: integer
+          category:
             type: string
-          entries:
-            type: array
-            items:
-              $ref:
-                Fn::Join:
-                  - ""
-                  - "https://apigateway.amazonaws.com/restapis/"
-                  - Ref: "LedgerRestApi"
-                  - "/models/"
-                  - Ref: "LedgerEntryModel"
-
-  LedgerEntriesResource:
-    Type: "AWS::ApiGateway::Resource"
+        required:
+        - description
+  UsersResource:
+    Type: AWS::ApiGateway::Resource
     Properties:
-      RestApiId:
-        Ref: LedgerRestApi
-      ParentId:
-        Fn::GetAtt:
-          - "LedgerRestApi"
-          - "RootResourceId"
-      PathPart: "entries"
-
-  LedgerEntriesGet:
-    Type: "AWS::ApiGateway::Method"
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !GetAtt LedgerRestApi.RootResourceId
+      PathPart: user
+  UsersGet:
+    Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId:
-        Ref: "LedgerRestApi"
-      ResourceId:
-        Ref: "LedgerEntriesResource"
-      HttpMethod: "GET"
-      AuthorizationType: "NONE"
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UsersResource
+      HttpMethod: GET
+      AuthorizationType: NONE
       Integration:
-        Type: AWS
+        Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri:
-          Fn::Join:
-            - ""
-            -
-              - "arn:aws:apigateway:"
-              - Ref: "AWS::Region"
-              - ":lambda:path/2015-03-31/functions/"
-              - Fn::GetAtt:
-                - "Lambda"
-                - "Arn"
-              - "/invocations"
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
         IntegrationResponses:
-          - ResponseTemplates:
-            application/json: "$input.json('$.body')"
-          - ResponseParameters:
-            method.response.header.Link: "integration.response.body.headers.next"
-          - StatusCode: 200
-        PassthroughBehavior: NEVER
-        RequestTemplates:
-          application/json: "{\"fun\": \"getUsers\", \"parameters\": {\"limit\": \"$input.params('limit')\", \"next\": \"$input.params('next')\"}}"
-
-      RequestParameters:
-        method.request.querystring.limit: false
-        method.request.querystring.next: false
-
-      MethodResponses:
-        - ResponseModels:
-            application/json":
-              Ref: "LedgerEntriesGroupModel"
-        - ResponseParameters:
-            method.response.header.Link: true
-        - StatusCode: 200
-
-  LedgerRestApiDeployment:
-    Type: "AWS::ApiGateway::Deployment"
+          -
+            StatusCode: 200
+  UsersPost:
+    Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId:
-        Ref: "LedgerRestApi"
-      StageName: "v1"
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UsersResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 201
+  UserResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref UsersResource
+      PathPart: "{userId}"
+  UserGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UserResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 200
+  UserDelete:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UserResource
+      HttpMethod: DELETE
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 204
+  UserTasksResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref UserResource
+      PathPart: task
+  UserTasksGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UserTasksResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 200
+  UserTasksPost:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UserTasksResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 201
+  UserTaskResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref UserTasksResource
+      PathPart: "{taskId}"
+  UserTaskPut:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UserTaskResource
+      HttpMethod: PUT
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 204
+  UserTaskDelete:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UserTaskResource
+      HttpMethod: DELETE
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 204
+  CategoriesResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !GetAtt LedgerRestApi.RootResourceId
+      PathPart: category
+  CategoryResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref CategoriesResource
+      PathPart: "{category}"
+  CategoryTasksResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ParentId: !Ref CategoryResource
+      PathPart: task
+  CategoryTasksGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref CategoryTasksResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 200
+  LedgerRestApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      StageName: !Ref DeploymentVersion
     DependsOn:
-      - "LedgerEntriesGet"
+    - UsersGet
+    - UsersPost
+    - UserGet
+    - UserDelete
+    - UserTasksGet
+    - UserTasksPost
+    - UserTaskPut
+    - UserTaskDelete
+    - CategoryTasksGet
 
 Outputs:
   ApiId:
-    Value:
-      Ref: "LedgerRestApi"
+    Value: !Ref LedgerRestApi
 
-  ApiURL:
-    Value:
-      Fn::Join:
-        - "/"
-        -
-          - !Ref ApiGatewayEndPointURL
-          - "restapis"
-          - Ref: "LedgerRestApi"
+  UserApi:
+    Value: !Join ["/", [!Ref ApiGatewayEndPointURL, "restapis", !Ref LedgerRestApi, !Ref DeploymentVersion, "_user_request_", "user"] ]

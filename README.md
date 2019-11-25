@@ -44,7 +44,11 @@ Listing functions:
 > aws  --endpoint-url=http://localhost:4574 lambda list-functions
 ```
 
-Listing functions:
+Listing REST APIs:
 ```
 > aws --endpoint-url=http://localhost:4567 cloudformation describe-stacks --stack-name ledger-stack --query Stacks[0].Outputs
+> aws --endpoint-url=http://localhost:4567 apigateway get-resources --rest-api-id <ApiId>
 ```
+
+Requests follow the pattern: http://localhost:4567/restapis/<ApiId>/<stage>/_user_request_/<path>
+Example: http://localhost:4567/restapis/zzaztl3gqs/v1/_user_request_/entries
