@@ -46,9 +46,31 @@ Resources:
       VersioningConfiguration:
         Status: Disabled
 
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: arn:aws:logs:*:*:*
+
   LedgerFunc:
     Type: "AWS::Lambda::Function"
-
     Properties:
       FunctionName: "Ledger"
       Handler: "ledger.handler"
@@ -59,10 +81,7 @@ Resources:
           AWS_REGION: !Ref Region
           S3_ENDPOINT_URL: !Ref S3EndPointURL
           BUCKET_NAME: Ledger
-      Role:
-        Fn::GetAtt:
-          - "LambdaExecutionRole"
-          - "Arn"
+      Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: "__local__"
         S3Key: "/opt/lambda"
@@ -232,25 +251,11 @@ Resources:
       ParentId: !Ref CategoryResource
       PathPart: task
 
-  UsersGet:
+  UserPost:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref LedgerRestApi
-      ResourceId: !Ref UsersResource
-      HttpMethod: GET
-      AuthorizationType: NONE
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
-        IntegrationResponses:
-          -
-            StatusCode: 200
-  UsersPost:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref LedgerRestApi
-      ResourceId: !Ref UsersResource
+      ResourceId: !Ref UserResource
       HttpMethod: POST
       AuthorizationType: NONE
       Integration:
@@ -288,6 +293,34 @@ Resources:
         IntegrationResponses:
           -
             StatusCode: 204
+  UsersGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UsersResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 200
+  UsersPost:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref LedgerRestApi
+      ResourceId: !Ref UsersResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join [ "", ['arn:aws:apigateway:', !Ref AWS::Region, ":lambda:path/2015-03-31/functions/", !GetAtt LedgerFunc.Arn, "/invocations"] ]
+        IntegrationResponses:
+          -
+            StatusCode: 201
   UserTasksGet:
     Type: AWS::ApiGateway::Method
     Properties:
