@@ -2,17 +2,18 @@ version: '3.7'
 services:
 
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack:0.10.5
     ports:
-      - "4567-4584:4567-4584"
+      - "4567-4592:4567-4592"
     environment:
-      - SERVICES=serverless
+      - SERVICES=serverless,sts
       - DEBUG=${DEBUG- }
       - DATA_DIR=${DATA_DIR- }
       - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-local}
       - LAMBDA_REMOTE_DOCKER=${LAMBDA_REMOTE_DOCKER-False}
       - DOCKER_HOST=unix:///var/run/docker.sock
       - START_WEB=0
+      - DEFAULT_REGION=us-east-1
     volumes:
       - type: bind
         source: "${TMPDIR:-/tmp/localstack}"

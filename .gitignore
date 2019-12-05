@@ -43,3 +43,5 @@ data/store
 /old-client
 _old
 output
+node_modules
+.serverless

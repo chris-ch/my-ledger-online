@@ -1,0 +1,114 @@
+service: online-ledger-service
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: us-east-1
+  deploymentBucket:
+    name: ${self:service}-deployment-bucket
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+package:
+  exclude:
+    - node_modules/**
+    - .idea/**
+    - README.md
+    - package.json
+    - package-lock.json
+    - requirements.txt
+
+custom:
+  localstack:
+    host: http://localhost
+    debug: true
+    stages:
+    - local
+    - dev
+    endpoints:
+      S3: http://localhost:4572
+      DynamoDB: http://localhost:4570
+      CloudFormation: http://localhost:4581
+      Elasticsearch: http://localhost:4571
+      ES: http://localhost:4578
+      SNS: http://localhost:4575
+      SQS: http://localhost:4576
+      Lambda: http://localhost:4574
+      Kinesis: http://localhost:4568
+    lambda:
+      mountCode: False
+
+plugins:
+  - serverless-localstack
+
+functions:
+  create:
+    handler: lambda/create.create
+    events:
+      - http:
+          path: ledger
+          method: post
+          cors: true
+
+  list:
+    handler: lambda/list.list
+    events:
+      - http:
+          path: ledger
+          method: get
+          cors: true
+
+  get:
+    handler: lambda/get.get
+    events:
+      - http:
+          path: ledger/{id}
+          method: get
+          cors: true
+
+  update:
+    handler: lambda/update.update
+    events:
+      - http:
+          path: ledger/{id}
+          method: put
+          cors: true
+
+  delete:
+    handler: lambda/delete.delete
+    events:
+      - http:
+          path: ledger/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    LedgerDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
